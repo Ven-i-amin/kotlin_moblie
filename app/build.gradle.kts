@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
@@ -20,6 +21,7 @@ android {
 
     buildFeatures {
         compose = true
+        viewBinding = true
     }
 
     buildTypes {
@@ -38,6 +40,8 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    buildToolsVersion = "36.1.0"
+
 }
 
 dependencies {
@@ -73,6 +77,23 @@ dependencies {
     implementation("androidx.compose.runtime:runtime-livedata")
     // Optional - Integration with RxJava
     implementation("androidx.compose.runtime:runtime-rxjava2")
+
+    implementation("com.patrykandpatryk.vico:core:1.5.2")
+    // Graphics
+    implementation("com.patrykandpatryk.vico:compose:1.5.2")
+    implementation("com.patrykandpatryk.vico:compose-m2:1.5.2")
+    implementation("com.patrykandpatryk.vico:compose-m3:1.5.2")
+
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+// Конвертер для Kotlinx Serialization (рекомендуется)
+    implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0") // Убедитесь, что версия актуальна
+
+// OkHttp для логгирования запросов (очень полезно для отладки)
+    implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")
+
+// ViewModel для Jetpack Compose
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
