@@ -1,9 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="background">#FFFFFFFF</color>
-    <color name="mainText">#FFFFFFFF</color>
+    <color name="primaryPurple">#7878FA</color>
+    <color name="primaryDarkPurple">#6262D9</color>
 
-    <color name="boardBorder">#FF000000</color>
-    <color name="squareBorder">#FFBABABA</color>
-    <color name="cellBorder">#FFEBEBEB</color>
+    <color name="backgroundGrey">#232336</color>
+    <color name="backgroundBlack">#16171A</color>
+
+    <color name="gradient1Purple">#9D62D9</color>
+    <color name="gradient1Pink">#6262D9</color>
+    <color name="gradient2Purple1">#4358BF</color>
+    <color name="gradient2Purple2">#7087FA</color>
+    <color name="gradient3LightBlue1">#70C1FA</color>
+    <color name="gradient3LightBlue2">#3083BF</color>
+    <color name="gradient4DarkPurple">#7474F2</color>
+    <color name="gradient5DarkGrey">#232336</color>
+
+    <color name="snowWhite">#F2F2FA</color>
+    <color name="lightGrey">#E4E4F0</color>
+    <color name="dustyGrey">#D5D5E0</color>
+    <color name="stormGrey">#A7A7CC</color>
 </resources>
