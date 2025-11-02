@@ -9,7 +9,6 @@ val defaultScheme = darkColorScheme(
     secondary = AppColors.DarkGrey,
     onSecondary = AppColors.StormGrey,
 
-
     secondaryContainer = AppColors.StormGrey,
 
     background = AppColors.Black,
