@@ -1,5 +1,6 @@
 package ru.vsu.task1.composables.generic
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -8,17 +9,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.vsu.task1.u1.theme.AppTypography
-import kotlin.math.max
+import ru.vsu.task1.u1.theme.defaultScheme
 
 @Composable
 fun RadioButtonRow(
@@ -28,7 +34,7 @@ fun RadioButtonRow(
     onClick: (Int) -> Unit,
     contents: List<@Composable (Boolean) -> Unit>
 ) {
-    val selectedComposable = remember { mutableIntStateOf(0) }
+    var selectedComposable by remember { mutableIntStateOf(0) }
 
     Row(
         modifier = modifier.selectableGroup(),
@@ -36,15 +42,16 @@ fun RadioButtonRow(
         verticalAlignment = verticalAlignment
     ) {
         for (i in contents.indices) {
-            val selected = i == selectedComposable.intValue
+            val selected = i == selectedComposable
+
 
             Box(
                 modifier = Modifier
                     .selectable(
                         selected = selected,
                         onClick = {
-                            selectedComposable.intValue = i
-                            onClick.invoke(selectedComposable.intValue)
+                            selectedComposable = i
+                            onClick.invoke(selectedComposable)
                         },
                         role = Role.RadioButton
                     ),
@@ -60,19 +67,18 @@ fun RadioButtonRow(
 @Composable
 fun RadioButtonPreview() {
     val buttons = listOf("1H", "1D", "1W", "1M", "1Y", "ALL").map { text ->
-        val function: @Composable (Boolean) -> Unit = { selected ->
-            SelectableButton(selected = selected,
-                onClick = { /*TODO*/ },
-                contentPadding = PaddingValues(0.dp)) {
+        @Composable
+        { selected:Boolean ->
+            Box(modifier = Modifier
+                .background(if (selected) defaultScheme.primary else Color.Transparent)
+            ) {
                 Text(
                     modifier = Modifier.padding(10.dp),
                     text = text,
                     style = AppTypography.bodySmall
                 )
             }
-
         }
-        function
     }
 
     RadioButtonRow(

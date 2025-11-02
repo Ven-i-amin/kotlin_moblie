@@ -45,6 +45,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.foundation.layout)
     val composeBom = platform("androidx.compose:compose-bom:2025.09.01")
     implementation(composeBom)
     androidTestImplementation(composeBom)
@@ -78,16 +79,19 @@ dependencies {
     // Optional - Integration with RxJava
     implementation("androidx.compose.runtime:runtime-rxjava2")
 
-    implementation("com.patrykandpatryk.vico:core:1.5.2")
     // Graphics
-    implementation("com.patrykandpatryk.vico:compose:1.5.2")
-    implementation("com.patrykandpatryk.vico:compose-m2:1.5.2")
-    implementation("com.patrykandpatryk.vico:compose-m3:1.5.2")
+    implementation(libs.vico.compose)
+
+    // Images from internet
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
 // Конвертер для Kotlinx Serialization (рекомендуется)
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0") // Убедитесь, что версия актуальна
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+
+//    implementation("co.yml:ycharts:2.1.0")
 
 // OkHttp для логгирования запросов (очень полезно для отладки)
     implementation("com.squareup.okhttp3:logging-interceptor:4.11.0")

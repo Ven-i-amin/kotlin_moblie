@@ -1,13 +1,15 @@
 package ru.vsu.task1.screen.trade
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -21,35 +23,51 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import ru.vsu.task1.R
-
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import ru.vsu.task1.api.viewmodels.PriceViewModel
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import ru.vsu.task1.R
+import ru.vsu.task1.api.viewmodels.CoinGekkoViewModel
+import ru.vsu.task1.composables.generic.RadioButtonButton
 import ru.vsu.task1.composables.generic.RadioButtonRow
-import ru.vsu.task1.composables.generic.SelectableButton
-import ru.vsu.task1.composables.trade.Graphic
+import ru.vsu.task1.composables.trade.CurrencyChart
 import ru.vsu.task1.u1.theme.AppTypography
 import ru.vsu.task1.u1.theme.defaultScheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showSystemUi = true)
 @Composable
-fun TradeScreen(currency: String = "bitcoin", viewModel: PriceViewModel = PriceViewModel()) {
+fun TradeScreen(
+    currency: String = "bitcoin",
+    viewModel: CoinGekkoViewModel = CoinGekkoViewModel()
+) {
+    val coinInfo by viewModel.coinInfo
     val prices by viewModel.prices
     val isLoading by viewModel.isLoading
     val error by viewModel.error
 
-    val chartDays = remember { mutableIntStateOf(1) }
+    var chartDays by remember { mutableIntStateOf(1) }
+    var bell by remember { mutableIntStateOf(0) }
+    var star by remember { mutableIntStateOf(0) }
 
-    LaunchedEffect(key1 = chartDays.intValue.inv()) {
+    LaunchedEffect(coinInfo) {
+        viewModel.fetchCoinInfo(currency)
+    }
+
+
+    LaunchedEffect(chartDays) {
         viewModel.fetchMarketChart(
             currency,
             "usdt",
-            chartDays.intValue.inv().toString()
+            chartDays.toString()
         )
     }
 
@@ -63,13 +81,18 @@ fun TradeScreen(currency: String = "bitcoin", viewModel: PriceViewModel = PriceV
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_bitcoin_24),
+                            AsyncImage(
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(coinInfo?.image?.large)
+                                    .crossfade(true)
+                                    .build(),
                                 contentDescription = currency,
+                                placeholder = painterResource(id = R.drawable.ic_bitcoin_24),
+                                contentScale = ContentScale.Fit
                             )
                             Text(
                                 color = defaultScheme.onPrimary,
-                                text = "crypto_name",
+                                text = coinInfo?.name ?: "Not enabled",
                                 style = AppTypography.bodyMedium
                             )
                         }
@@ -85,7 +108,7 @@ fun TradeScreen(currency: String = "bitcoin", viewModel: PriceViewModel = PriceV
                         }
                     },
                     actions = {
-                        IconButton(onClick = { /* Handle settings action */ }) {
+                        IconButton(onClick = { bell = (bell + 1) % 2 }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_bell_24),
                                 contentDescription = "Settings",
@@ -93,7 +116,7 @@ fun TradeScreen(currency: String = "bitcoin", viewModel: PriceViewModel = PriceV
                             )
                         }
 
-                        IconButton(onClick = { /* Handle settings action */ }) {
+                        IconButton(onClick = { star = (star + 1) % 2 }) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_star_24),
                                 contentDescription = "Settings",
@@ -109,6 +132,7 @@ fun TradeScreen(currency: String = "bitcoin", viewModel: PriceViewModel = PriceV
                     .padding(pv)
                     .fillMaxHeight()
             ) {
+
                 Column(
                     Modifier
                         .padding(horizontal = 24.dp)
@@ -135,51 +159,79 @@ fun TradeScreen(currency: String = "bitcoin", viewModel: PriceViewModel = PriceV
                     }
 
                     listOf("Overview", "Transactions", "Orders").map {
-                        val function: @Composable (Boolean) -> Unit = { selected ->
-                            SelectableButton(
+                        @Composable
+                        { selected: Boolean ->
+                            RadioButtonButton(
+                                modifier = Modifier
+                                    .padding(bottom = 24.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(
+                                        if (selected) defaultScheme.primary
+                                        else defaultScheme.surface
+                                    ),
                                 selected = selected,
                                 onClick = { /*TODO*/ }
                             ) {
                                 Text(
+                                    modifier = Modifier
+                                        .padding(
+                                            horizontal = 17.dp,
+                                            vertical = 12.dp
+                                        ),
                                     text = it,
                                     style = AppTypography.bodySmall
                                 )
                             }
                         }
-                        function
-                    }.also {
+                    }.also { it ->
                         RadioButtonRow(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .padding(bottom = 24.dp)
+                                .fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             onClick = { /*TODO*/ },
                             contents = it
                         )
 
-                        Column {
-                            Graphic(prices)
+                        CurrencyChart(
+                            modifier = Modifier.weight(1f),
+                            costs = prices.ifEmpty { listOf(0.3f, 0.2f, 12f, 10f) }
+                        )
 
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
                             mapOf(
                                 Pair("1D", 1),
                                 Pair("1W", 7),
                                 Pair("1M", 30),
                                 Pair("1Y", 365)
                             ).map { pair ->
-                                val function: @Composable (Boolean) -> Unit = { selected ->
-                                    SelectableButton(
+                                @Composable
+                                { selected: Boolean ->
+                                    RadioButtonButton(
+                                        modifier = Modifier
+                                            .padding(horizontal = 5.dp)
+                                            .clip(shape = CircleShape)
+                                            .background(
+                                                if (selected) defaultScheme.primary
+                                                else defaultScheme.surface
+                                            ),
                                         selected = selected,
-                                        onClick = { chartDays.intValue = pair.value },
-                                        contentPadding = PaddingValues(0.dp)
+                                        onClick = { chartDays = pair.value }
                                     ) {
                                         Text(
+                                            modifier = Modifier.padding(8.dp),
                                             text = pair.key,
                                             style = AppTypography.bodySmall
                                         )
                                     }
                                 }
-                                function
                             }.also {
                                 RadioButtonRow(
-                                    modifier = Modifier.fillMaxWidth(),
+                                    modifier = Modifier
+                                        .padding(bottom = 24.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     onClick = { /*TODO*/ },
                                     contents = it
@@ -190,7 +242,7 @@ fun TradeScreen(currency: String = "bitcoin", viewModel: PriceViewModel = PriceV
                         Button(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(top = 24.dp),
+                                .padding(top = 12.dp),
                             onClick = { /*TODO*/ }
                         ) {
                             Text(
