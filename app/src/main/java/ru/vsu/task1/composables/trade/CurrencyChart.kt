@@ -65,7 +65,7 @@ fun CurrencyChart(costs: List<Float>, modifier: Modifier = Modifier) {
     Box(modifier = modifier) {
         ChartHost(
             modelProducer = modelProducer,
-            priceLine =priceLine(lastPrice),
+            priceLine = priceLine(lastPrice),
             yLayerRange = layerRange(
                 minY = minPrice.toDouble(),
                 maxY = maxPrice.toDouble()

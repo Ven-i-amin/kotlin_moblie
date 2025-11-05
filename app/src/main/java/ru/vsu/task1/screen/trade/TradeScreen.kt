@@ -36,6 +36,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import ru.vsu.task1.R
 import ru.vsu.task1.api.viewmodels.CoinGekkoViewModel
+import ru.vsu.task1.composables.generic.Loading
 import ru.vsu.task1.composables.generic.RadioButtonButton
 import ru.vsu.task1.composables.generic.RadioButtonRow
 import ru.vsu.task1.composables.trade.CurrencyChart
@@ -112,7 +113,7 @@ fun TradeScreen(
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_bell_24),
                                 contentDescription = "Settings",
-                                tint = defaultScheme.onSurface
+                                tint = if (bell == 0) defaultScheme.onSurface else defaultScheme.primary
                             )
                         }
 
@@ -120,7 +121,7 @@ fun TradeScreen(
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_star_24),
                                 contentDescription = "Settings",
-                                tint = defaultScheme.onSurface
+                                tint = if (star == 0) defaultScheme.onSurface else defaultScheme.primary
                             )
                         }
                     }
@@ -132,6 +133,18 @@ fun TradeScreen(
                     .padding(pv)
                     .fillMaxHeight()
             ) {
+                if (isLoading) {
+                    return@Box Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(),
+                        contentAlignment = Alignment
+                            .CenterVertically
+                            .plus(Alignment.CenterHorizontally)
+                    ) {
+                        Loading(modifier = Modifier.padding(horizontal = 170.dp))
+                    }
+                }
 
                 Column(
                     Modifier
@@ -147,7 +160,7 @@ fun TradeScreen(
                         )
                         Row {
                             Text(
-                                text = "procent% ",
+                                text = "$${coinInfo?.marketData?.priceChange24h ?: "percent"} ",
                                 color = defaultScheme.primary,
                                 style = AppTypography.bodyMedium
                             )
@@ -194,8 +207,10 @@ fun TradeScreen(
                         )
 
                         CurrencyChart(
-                            modifier = Modifier.weight(1f),
-                            costs = prices.ifEmpty { listOf(0.3f, 0.2f, 12f, 10f) }
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(bottom = 6.dp),
+                            costs = prices.ifEmpty { listOf(1000f, 1299f, 1100f, 1040f) }
                         )
 
                         Row(
