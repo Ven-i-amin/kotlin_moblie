@@ -3,9 +3,9 @@ package ru.vsu.task1.api.services
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
-import ru.vsu.task1.api.responses.CoinGekkoCoinInfoResponse
+import ru.vsu.task1.api.responses.CoinInfoResponse
 
-import ru.vsu.task1.api.responses.CoinGekkoPriceResponse
+import ru.vsu.task1.api.responses.PriceResponse
 
 interface CoinGekkoService {
     /**
@@ -19,11 +19,10 @@ interface CoinGekkoService {
         @Path("id") id: String,
         @Query("vs_currency") vsCurrency: String,
         @Query("days") days: String,
-        @Query("x_cg_demo_api_key") apiKey: String
-    ): CoinGekkoPriceResponse
+    ): PriceResponse
 
-    @GET("api/v3/coins/{id}?tickers=false&community_data=false&developer_data=false&sparkline=false")
+    @GET("api/v3/coins/{id}?tickers=false&community_data=false&developer_data=false&sparkline=false&market_data=true")
     suspend fun getCoinInfo(
         @Path("id") id: String
-    ): CoinGekkoCoinInfoResponse
+    ): CoinInfoResponse
 }

@@ -3,13 +3,13 @@ package ru.vsu.task1.composables.trade
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -20,10 +20,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
-import com.patrykandpatrick.vico.compose.cartesian.VicoZoomState
-import com.patrykandpatrick.vico.compose.cartesian.axis.rememberStart
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
+import com.patrykandpatrick.vico.compose.cartesian.marker.rememberDefaultCartesianMarker
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
 import com.patrykandpatrick.vico.compose.common.component.rememberLineComponent
 import com.patrykandpatrick.vico.compose.common.component.rememberTextComponent
@@ -31,34 +31,60 @@ import com.patrykandpatrick.vico.compose.common.component.shapeComponent
 import com.patrykandpatrick.vico.compose.common.fill
 import com.patrykandpatrick.vico.compose.common.insets
 import com.patrykandpatrick.vico.compose.common.shape.rounded
-import com.patrykandpatrick.vico.core.cartesian.Zoom
-import com.patrykandpatrick.vico.core.cartesian.axis.Axis
-import com.patrykandpatrick.vico.core.cartesian.axis.VerticalAxis
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianLayerRangeProvider
 import com.patrykandpatrick.vico.core.cartesian.data.lineSeries
 import com.patrykandpatrick.vico.core.cartesian.decoration.HorizontalLine
 import com.patrykandpatrick.vico.core.common.Position
+import com.patrykandpatrick.vico.core.common.component.ShapeComponent
+import com.patrykandpatrick.vico.core.common.component.TextComponent
 import com.patrykandpatrick.vico.core.common.shader.ShaderProvider.Companion.verticalGradient
 import com.patrykandpatrick.vico.core.common.shape.CorneredShape
 import com.patrykandpatrick.vico.core.common.shape.DashedShape
+import com.patrykandpatrick.vico.core.common.shape.Shape
+import ru.vsu.task1.api.viewmodels.trade.TradeScreenViewModel
+import ru.vsu.task1.composables.generic.ErrorMessage
 import ru.vsu.task1.u1.theme.defaultScheme
+import kotlin.math.PI
+import kotlin.math.abs
+import kotlin.math.cos
+import kotlin.math.sin
 import kotlin.random.Random
 import com.patrykandpatrick.vico.core.cartesian.layer.LineCartesianLayer as LineLayer
+const val STEPS_NUMBER = 50
+const val CIRCLE_ANGLE = 360
+const val DELTA_STEP = CIRCLE_ANGLE.toFloat() / STEPS_NUMBER
+const val GRADUS = PI / 180;
+
+
+private val circle: Shape = Shape { _, path, left, top, right, bottom ->
+    val xRadius = abs(left - right) / 2f
+    val yRadius = abs(top - bottom) / 2f
+    val xCenter = (left + right) / 2
+    val yCenter = (top + bottom) / 2
+
+    path.moveTo(xCenter + xRadius, yCenter)
+
+    for (i in 0..STEPS_NUMBER) {
+        val angle = i * DELTA_STEP * GRADUS
+        path.lineTo(
+            ((xCenter + xRadius * cos(angle)).toFloat()),
+            ((yCenter + yRadius * sin(angle)).toFloat())
+        )
+    }
+    path.close()
+}
 
 @Composable
 fun CurrencyChart(costs: List<Float>, modifier: Modifier = Modifier) {
-    val lastPrice by remember { mutableFloatStateOf(costs.last()) }
-    val minPrice by remember { mutableFloatStateOf(costs.min()) }
-    val maxPrice by remember { mutableFloatStateOf(costs.max()) }
+    val lastPrice = costs.last()
+    val minPrice = costs.min() - 10
+    val maxPrice = costs.max() + 10
     val modelProducer = remember { CartesianChartModelProducer() }
 
     LaunchedEffect(costs) {
-        val chartPoints = costs.mapIndexed {
-            index, cost -> index to cost
-        }.toMap()
         modelProducer.runTransaction {
-            lineSeries { series(chartPoints.keys, chartPoints.values) }
+            lineSeries { series(costs) }
         }
     }
 
@@ -66,7 +92,7 @@ fun CurrencyChart(costs: List<Float>, modifier: Modifier = Modifier) {
         ChartHost(
             modelProducer = modelProducer,
             priceLine = priceLine(lastPrice),
-            yLayerRange = layerRange(
+            layerRange = layerRange(
                 minY = minPrice.toDouble(),
                 maxY = maxPrice.toDouble()
             )
@@ -76,7 +102,7 @@ fun CurrencyChart(costs: List<Float>, modifier: Modifier = Modifier) {
 
 
 @Composable
-fun priceLine(price: Float): HorizontalLine {
+private fun priceLine(price: Float): HorizontalLine {
     val line = rememberLineComponent(
         fill = fill(
             color = defaultScheme.onSecondary
@@ -97,24 +123,22 @@ fun priceLine(price: Float): HorizontalLine {
     )
 
 
-    return remember {
-        HorizontalLine(
-            y = { price.toDouble() },
-            line = line,
-            labelComponent = label,
-            label = { "$${price}" },
-            verticalLabelPosition = Position.Vertical.Center
-        )
-    }
+    return HorizontalLine(
+        y = { price.toDouble() },
+        line = line,
+        labelComponent = label,
+        label = { "$${price}" },
+        verticalLabelPosition = Position.Vertical.Center
+    )
 }
 
 @Composable
-fun layerRange(
+private fun layerRange(
     minX: Double? = null,
     minY: Double? = null,
     maxX: Double? = null,
     maxY: Double? = null
-) : CartesianLayerRangeProvider {
+): CartesianLayerRangeProvider {
     return CartesianLayerRangeProvider.fixed(
         minX = minX,
         minY = minY,
@@ -124,10 +148,10 @@ fun layerRange(
 }
 
 @Composable
-fun ChartHost(
+private fun ChartHost(
     modelProducer: CartesianChartModelProducer = remember { CartesianChartModelProducer() },
     priceLine: HorizontalLine,
-    yLayerRange: CartesianLayerRangeProvider
+    layerRange: CartesianLayerRangeProvider
 ) {
     val lineLayer = rememberLineCartesianLayer(
         lineProvider = LineLayer.LineProvider.series(
@@ -153,7 +177,7 @@ fun ChartHost(
                 ),
             )
         ),
-        rangeProvider = yLayerRange
+        rangeProvider = layerRange
     )
 
     CartesianChartHost(
@@ -162,15 +186,30 @@ fun ChartHost(
             decorations = listOf(
                 priceLine
             ),
+            marker = rememberDefaultCartesianMarker(
+                label = TextComponent(),
+                indicator = { color ->
+                    ShapeComponent(
+                        fill = fill(color),
+                        shape = circle,
+                        strokeFill = fill(defaultScheme.onPrimary),
+                        strokeThicknessDp = 3f
+                    )
+                }
+            ),
+            getXStep = { it.width }
         ),
         modelProducer = modelProducer,
         modifier = Modifier.fillMaxHeight(),
+        placeholder = { ErrorMessage() }
     )
 }
 
 @Preview
 @Composable
-fun PreviewLineChart() {
+private fun PreviewLineChart() {
+    val viewModel: TradeScreenViewModel = viewModel()
+    var prices by viewModel.prices
     var clicked by remember { mutableIntStateOf(0) }
 
     val values = remember(clicked) {
@@ -178,10 +217,17 @@ fun PreviewLineChart() {
         List(10) { random.nextFloat() * 100f + 1000 }
     }
 
+    print(prices)
+
     MaterialTheme {
         Column {
-            CurrencyChart(costs = values)
-            Button(onClick = { clicked++ }) {
+            CurrencyChart(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                costs = prices.ifEmpty { values }
+            )
+            Button(onClick = { viewModel.fetchMarketChart("bitcoin", currency = "usd", days = "1") }) {
                 Text("Clicked $clicked times")
             }
         }

@@ -26,13 +26,17 @@ import androidx.compose.ui.unit.dp
 import ru.vsu.task1.u1.theme.AppTypography
 import ru.vsu.task1.u1.theme.defaultScheme
 
+data class RadioButton(
+    val selectableComposable: @Composable (Boolean) -> Unit,
+    val onClick: () -> Unit
+)
+
 @Composable
 fun RadioButtonRow(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
-    onClick: (Int) -> Unit,
-    contents: List<@Composable (Boolean) -> Unit>
+    contents: List<RadioButton>
 ) {
     var selectedComposable by remember { mutableIntStateOf(0) }
 
@@ -41,23 +45,22 @@ fun RadioButtonRow(
         horizontalArrangement = horizontalArrangement,
         verticalAlignment = verticalAlignment
     ) {
-        for (i in contents.indices) {
+        for (i in contents.map { it.selectableComposable }.indices) {
             val selected = i == selectedComposable
-
 
             Box(
                 modifier = Modifier
                     .selectable(
                         selected = selected,
                         onClick = {
+                            contents.elementAt(i).onClick()
                             selectedComposable = i
-                            onClick.invoke(selectedComposable)
                         },
                         role = Role.RadioButton
                     ),
                 contentAlignment = Alignment.Center,
             ) {
-                contents[i](selected)
+                contents.elementAt(i).selectableComposable(selected)
             }
         }
     }
@@ -66,26 +69,25 @@ fun RadioButtonRow(
 @Preview
 @Composable
 fun RadioButtonPreview() {
-    val buttons = listOf("1H", "1D", "1W", "1M", "1Y", "ALL").map { text ->
-        @Composable
-        { selected:Boolean ->
-            Box(modifier = Modifier
-                .background(if (selected) defaultScheme.primary else Color.Transparent)
-            ) {
-                Text(
-                    modifier = Modifier.padding(10.dp),
-                    text = text,
-                    style = AppTypography.bodySmall
-                )
-            }
-        }
-    }
-
-    RadioButtonRow(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-        onClick = { /*TODO*/ },
-        contents = buttons
-    )
+//    val buttons = listOf("1H", "1D", "1W", "1M", "1Y", "ALL").map { text ->
+//        @Composable
+//        { selected:Boolean ->
+//            Box(modifier = Modifier
+//                .background(if (selected) defaultScheme.primary else Color.Transparent)
+//            ) {
+//                Text(
+//                    modifier = Modifier.padding(10.dp),
+//                    text = text,
+//                    style = AppTypography.bodySmall
+//                )
+//            }
+//        }
+//    }
+//
+//    RadioButtonRow(
+//        modifier = Modifier.fillMaxWidth(),
+//        horizontalArrangement = Arrangement.SpaceBetween,
+//        verticalAlignment = Alignment.CenterVertically, ,
+//        contents = buttons
+//    )
 }

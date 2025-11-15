@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class CoinGekkoPriceResponse(
+data class PriceResponse(
     @SerialName("prices")
     val prices: List<List<Double>>,
     @SerialName("market_caps")
