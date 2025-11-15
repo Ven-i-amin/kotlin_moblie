@@ -1,46 +1,45 @@
-package ru.vsu.task1.api.viewmodels
+package ru.vsu.task1.api.viewmodels.trade
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import retrofit2.Retrofit
-import ru.vsu.task1.api.services.CoinGekkoService
-import retrofit2.converter.gson.GsonConverterFactory
-import ru.vsu.task1.api.responses.CoinGekkoCoinInfoResponse
+import ru.vsu.task1.api.repositories.trade.TradeRepository
 
-class CoinGekkoViewModel : ViewModel() {
-    val coinInfo = mutableStateOf<CoinGekkoCoinInfoResponse?>(null)
+class TradeScreenViewModel(
+    private val repository: TradeRepository,
+) : ViewModel() {
+    val coinName = mutableStateOf<String?>(null)
+    val coinImage = mutableStateOf<String?>(null)
+    val coinChange24h = mutableStateOf<Double?>(null)
+    val coinChangePercentage24h = mutableStateOf<Double?>(null)
     val prices = mutableStateOf<List<Float>>(emptyList())
     val isLoading = mutableStateOf(false)
+    val isChartLoading = mutableStateOf(false)
     val error = mutableStateOf<String?>(null)
-    private val apiKey = "REMOVED"
-    private val service: CoinGekkoService = Retrofit.Builder()
-        .baseUrl("https://api.coingecko.com/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-        .create(CoinGekkoService::class.java)
 
     init {
         fetchMarketChart("bitcoin", "usd", "1")
     }
 
     fun fetchMarketChart(coinId: String, currency: String, days: String) {
-        isLoading.value = true
+        isChartLoading.value = true
         error.value = null
 
         viewModelScope.launch {
             try {
-                val response = service.getPrices(coinId, currency, days, apiKey)
+                val response = repository.getHistoryPrices(
+                    id = coinId,
+                    vsCurrency = currency,
+                    days = days
+                )
 
                 prices.value = response.prices.map{ it[1].toFloat() }
-
-
             } catch (e: Exception) {
                 error.value = "Failed to load data: ${e.message}"
                 e.printStackTrace()
             } finally {
-                isLoading.value = false
+                isChartLoading.value = false
             }
         }
     }
@@ -51,9 +50,14 @@ class CoinGekkoViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
-                val response = service.getCoinInfo(coinId)
+                val response = repository.getCoinInfo(coinId)
 
-                coinInfo.value = response
+                response.let {
+                    coinName.value = it.name
+                    coinImage.value = it.image?.small
+                    coinChange24h.value = it.marketData?.priceChange24h
+                    coinChangePercentage24h.value = it.marketData?.priceChangePercentage24h
+                }
             } catch (e: Exception) {
                 error.value = "Failed to get coin info: ${e.message}"
                 e.printStackTrace()

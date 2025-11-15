@@ -99,6 +99,10 @@ dependencies {
 // ViewModel для Jetpack Compose
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
 
+    // koin
+    implementation(libs.koin.android)
+    implementation(libs.koin.core)
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
