@@ -6,7 +6,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import org.koin.dsl.module
 import retrofit2.Converter
 import retrofit2.Retrofit
-import ru.vsu.task1.api.services.CoinGekkoService
+import ru.vsu.task1.api.services.CoinGeckoService
 import kotlin.jvm.java
 
 private val json = Json {
@@ -25,8 +25,8 @@ fun provideRetrofit(
     .addConverterFactory(jsonFactory)
     .build()
 
-fun provideService(retrofit: Retrofit): CoinGekkoService =
-    retrofit.create(CoinGekkoService::class.java)
+fun provideService(retrofit: Retrofit): CoinGeckoService =
+    retrofit.create(CoinGeckoService::class.java)
 
 val networkModule = module {
     single { provideConverterFactory() }
