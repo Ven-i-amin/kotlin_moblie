@@ -5,8 +5,6 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.MaterialTheme
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -16,9 +14,7 @@ import ru.vsu.task1.app.di.appModule
 import ru.vsu.task1.app.di.dataModule
 import ru.vsu.task1.app.di.domainModule
 import ru.vsu.task1.app.di.networkModule
-import ru.vsu.task1.ui.screens.auth.AuthScreen
-import ru.vsu.task1.ui.screens.home.HomeScreen
-import ru.vsu.task1.ui.screens.trade.TradeScreen
+import ru.vsu.task1.ui.navigation.MainNavigation
 import ru.vsu.task1.ui.theme.defaultScheme
 
 class CryptoApplication : Application() {
@@ -49,23 +45,7 @@ class MainActivity : AppCompatActivity() {
                 MaterialTheme(defaultScheme) {
                     val navController = rememberNavController()
 
-                    NavHost(
-                        navController = navController,
-                        startDestination = "auth"
-                    ) {
-                        composable("auth") {
-                            AuthScreen(navController)
-                        }
-
-                        composable("home") {
-                            HomeScreen(navController)
-                        }
-
-                        composable("trade/{coin}") { backStackEntry ->
-                            val coin = backStackEntry.arguments?.getString("coin")!!
-                            TradeScreen(navController, coin)
-                        }
-                    }
+                    MainNavigation(navController = navController)
                 }
             }
         }
