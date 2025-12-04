@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -42,7 +43,7 @@ import com.patrykandpatrick.vico.core.common.shader.ShaderProvider.Companion.ver
 import com.patrykandpatrick.vico.core.common.shape.CorneredShape
 import com.patrykandpatrick.vico.core.common.shape.DashedShape
 import com.patrykandpatrick.vico.core.common.shape.Shape
-import ru.vsu.task1.api.viewmodels.trade.TradeScreenViewModel
+import ru.vsu.task1.api.viewmodels.trade.TradeViewModel
 import ru.vsu.task1.composables.generic.ErrorMessage
 import ru.vsu.task1.u1.theme.defaultScheme
 import kotlin.math.PI
@@ -208,8 +209,8 @@ private fun ChartHost(
 @Preview
 @Composable
 private fun PreviewLineChart() {
-    val viewModel: TradeScreenViewModel = viewModel()
-    var prices by viewModel.prices
+    val viewModel: TradeViewModel = viewModel()
+    val prices by viewModel.prices.collectAsState()
     var clicked by remember { mutableIntStateOf(0) }
 
     val values = remember(clicked) {
@@ -227,7 +228,7 @@ private fun PreviewLineChart() {
                     .weight(1f),
                 costs = prices.ifEmpty { values }
             )
-            Button(onClick = { viewModel.fetchMarketChart("bitcoin", currency = "usd", days = "1") }) {
+            Button(onClick = { viewModel.fetchMarketChart("bitcoin", vsCurrency = "usd", days = "1") }) {
                 Text("Clicked $clicked times")
             }
         }

@@ -27,8 +27,8 @@ import ru.vsu.task1.u1.theme.AppTypography
 import ru.vsu.task1.u1.theme.defaultScheme
 
 data class RadioButton(
+    val onClick: () -> Unit,
     val selectableComposable: @Composable (Boolean) -> Unit,
-    val onClick: () -> Unit
 )
 
 @Composable

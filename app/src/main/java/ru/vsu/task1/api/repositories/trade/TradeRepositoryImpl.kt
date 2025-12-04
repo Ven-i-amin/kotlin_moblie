@@ -1,25 +1,27 @@
 package ru.vsu.task1.api.repositories.trade
 
-import ru.vsu.task1.api.responses.CoinInfoResponse
-import ru.vsu.task1.api.responses.PriceResponse
-import ru.vsu.task1.api.services.CoinGekkoService
+import android.util.Log
+import ru.vsu.task1.api.models.trade.MarketChart
+import ru.vsu.task1.api.services.CoinGeckoService
 
-class TradeRepositoryImpl(private val service: CoinGekkoService) : TradeRepository {
+class TradeRepositoryImpl(private val service: CoinGeckoService) : TradeRepository {
     override suspend fun getHistoryPrices(
         id: String,
         vsCurrency: String,
         days: String
-    ): PriceResponse {
-        return service.getPrices(
+    ): MarketChart {
+        val response = service.getPrices(
             id = id,
             vsCurrency = vsCurrency,
             days = days,
         )
-    }
 
-    override suspend fun getCoinInfo(id: String): CoinInfoResponse {
-        return service.getCoinInfo(
-            id = id
-        )
+        Log.d("MarketChart", "Info")
+
+        if (response.isSuccessful) {
+            return response.body()!!
+        } else {
+            throw Exception(response.message())
+        }
     }
 }

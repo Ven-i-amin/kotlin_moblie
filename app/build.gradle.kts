@@ -46,6 +46,7 @@ android {
 
 dependencies {
     implementation(libs.androidx.foundation.layout)
+    implementation(libs.androidx.navigation.compose)
     val composeBom = platform("androidx.compose:compose-bom:2025.09.01")
     implementation(composeBom)
     androidTestImplementation(composeBom)
@@ -102,6 +103,11 @@ dependencies {
     // koin
     implementation(libs.koin.android)
     implementation(libs.koin.core)
+    implementation(libs.koin.compose)
+    implementation(libs.koin.compose.navigation)
+
+    // time patterns
+    implementation("com.jakewharton.threetenabp:threetenabp:1.4.6")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)

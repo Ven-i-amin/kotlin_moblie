@@ -1,14 +1,18 @@
 package ru.vsu.task1.screen.trade
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -28,54 +33,49 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import androidx.navigation.NavController
+import org.koin.androidx.compose.koinViewModel
 import ru.vsu.task1.R
-import ru.vsu.task1.api.viewmodels.trade.TradeScreenViewModel
+import ru.vsu.task1.api.models.trade.CoinInfo
+import ru.vsu.task1.api.viewmodels.trade.TradeViewModel
 import ru.vsu.task1.composables.generic.ErrorMessage
 import ru.vsu.task1.composables.generic.Loading
+import ru.vsu.task1.composables.generic.LoadingOrErrorMessage
 import ru.vsu.task1.composables.generic.RadioButton
 import ru.vsu.task1.composables.generic.RadioButtonRow
+import ru.vsu.task1.composables.generic.SmallImage
 import ru.vsu.task1.composables.trade.CurrencyChart
 import ru.vsu.task1.u1.theme.AppTypography
-import ru.vsu.task1.u1.theme.defaultScheme
 import java.util.Locale
-import kotlin.collections.ifEmpty
-import kotlin.collections.map
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Preview(showSystemUi = true)
 @Composable
 fun TradeScreen(
+    navController: NavController,
     currency: String = "bitcoin",
-    viewModel: TradeScreenViewModel = viewModel()
+    viewModel: TradeViewModel = koinViewModel()
 ) {
-    val coinName by viewModel.coinName
-    val coinImage by viewModel.coinImage
-    val coinChange24h by viewModel.coinChange24h
-    val coinChangePercentage24h by viewModel.coinChangePercentage24h
-
-    val prices by viewModel.prices
-    val isLoading by viewModel.isLoading
-    val isChartLoading by viewModel.isChartLoading
-    val error by viewModel.error
-
-    var bell by remember { mutableIntStateOf(0) }
-    var star by remember { mutableIntStateOf(0) }
+    val colors = MaterialTheme.colorScheme
 
     LaunchedEffect(Unit) {
         viewModel.fetchCoinInfo(currency)
     }
 
-    MaterialTheme(colorScheme = defaultScheme) {
-        Scaffold(
-            topBar = {
+    val coinInfo by viewModel.coinInfo.collectAsState()
+
+    val prices by viewModel.prices.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val isChartLoading by viewModel.isChartLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
+
+    var bell by remember { mutableIntStateOf(0) }
+    var star by remember { mutableIntStateOf(0) }
+
+    Scaffold(
+        topBar = {
+            Column {
                 TopAppBar(
                     title = {
                         Row(
@@ -83,30 +83,27 @@ fun TradeScreen(
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            AsyncImage(
-                                modifier = Modifier.height(32.dp),
-                                model = ImageRequest.Builder(LocalContext.current)
-                                    .data(coinImage)
-                                    .crossfade(true)
-                                    .build(),
-                                contentDescription = currency,
-                                placeholder = painterResource(id = R.drawable.ic_bitcoin_24),
-                                contentScale = ContentScale.Fit
-                            )
+                            if (coinInfo?.image != null) {
+                                SmallImage(
+                                    url = coinInfo?.image?.small,
+                                    description = currency
+                                )
+                            }
                             Text(
-                                color = defaultScheme.onPrimary,
-                                text = coinName ?: "Not enabled",
+                                color = colors.onPrimary,
+                                text = coinInfo?.name ?: currency,
                                 style = AppTypography.bodyLarge
                             )
                         }
                     },
                     navigationIcon = {
                         IconButton(
-                            onClick = { /* Handle back navigation */ }
+                            onClick = { navController.popBackStack() }
                         ) {
                             Icon(
-                                painter = painterResource(id = R.drawable.ic_arrow_left_24),
-                                contentDescription = "Back"
+                                painter = painterResource(R.drawable.ic_arrow_left_24),
+                                contentDescription = "Back",
+                                tint = colors.onSurface
                             )
                         }
                     },
@@ -115,7 +112,7 @@ fun TradeScreen(
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_bell_24),
                                 contentDescription = "Settings",
-                                tint = if (bell == 0) defaultScheme.onSurface else defaultScheme.primary
+                                tint = if (bell == 0) colors.onSurface else colors.primary
                             )
                         }
 
@@ -123,68 +120,61 @@ fun TradeScreen(
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_star_24),
                                 contentDescription = "Settings",
-                                tint = if (star == 0) defaultScheme.onSurface else defaultScheme.primary
+                                tint = if (star == 0) colors.onSurface else colors.primary
                             )
                         }
                     }
                 )
             }
-        ) { pv ->
-            Box(
-                Modifier
-                    .padding(pv)
-                    .fillMaxHeight()
-            ) {
-                if (error != null) {
-                    return@Box Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(),
-                        contentAlignment = Alignment
-                            .CenterVertically
-                            .plus(Alignment.CenterHorizontally)
-                    ) {
-                        ErrorMessage()
+        }
+    ) { pv ->
+        Box(
+            Modifier
+                .padding(pv)
+                .fillMaxSize()
+        ) {
+            if (isLoading) {
+                return@Box LoadingOrErrorMessage(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(),
+                    isError = error != null,
+                    loading = { Loading(modifier = Modifier.padding(horizontal = 170.dp)) },
+                    errorMessage = {
+                        ErrorMessage {
+                            viewModel.fetchCoinInfo(currency)
+                        }
                     }
-                } else if (isLoading) {
-                    return@Box Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(),
-                        contentAlignment = Alignment
-                            .CenterVertically
-                            .plus(Alignment.CenterHorizontally)
-                    ) {
-                        Loading(modifier = Modifier.padding(horizontal = 170.dp))
-                    }
-                }
-
-                MainContent(
-                    coinChange24h = coinChange24h,
-                    coinChangePercentage24h = coinChangePercentage24h,
-                    prices = prices,
-                    onPeriodSelected = { days ->
-                        viewModel.fetchMarketChart(
-                            currency,
-                            "usd",
-                            days.toString()
-                        )
-                    },
-                    isChartLoading = isChartLoading
                 )
             }
+
+            MainContent(
+                coinInfo = coinInfo,
+                prices = prices,
+                onPeriodSelected = { days ->
+                    viewModel.fetchMarketChart(
+                        currency,
+                        "usd",
+                        days.toString()
+                    )
+                },
+                isChartLoading = isChartLoading,
+                error = error
+            )
         }
     }
 }
 
 @Composable
 private fun MainContent(
-    coinChange24h: Double?,
-    coinChangePercentage24h: Double?,
+    coinInfo: CoinInfo?,
     prices: List<Float>,
     isChartLoading: Boolean = false,
+    error: String?,
     onPeriodSelected: (Int) -> Unit
 ) {
+    val colors = MaterialTheme.colorScheme
+
     var content by remember {
         mutableStateOf("chart")
     }
@@ -206,10 +196,10 @@ private fun MainContent(
                     text = String.format(
                         Locale.US,
                         "%+.2f%% ($%.2f) ",
-                        coinChangePercentage24h,
-                        coinChange24h,
+                        coinInfo?.marketData?.priceChangePercentage24h,
+                        coinInfo?.marketData?.priceChange24h,
                     ),
-                    color = defaultScheme.primary,
+                    color = colors.primary,
                     style = AppTypography.bodyMedium
                 )
                 Text(
@@ -236,8 +226,8 @@ private fun MainContent(
                             modifier = Modifier
                                 .clip(CircleShape)
                                 .background(
-                                    if (selected) defaultScheme.primary
-                                else defaultScheme.surface
+                                    if (selected) colors.primary
+                                    else colors.surface
                                 )
                         ) {
                             Text(
@@ -258,6 +248,7 @@ private fun MainContent(
                 "chart" -> ChartContent(
                     prices = prices,
                     isChartLoading = isChartLoading,
+                    error = error,
                     onPeriodSelected = onPeriodSelected
                 )
 
@@ -284,71 +275,86 @@ private fun MainContent(
 private fun ChartContent(
     prices: List<Float>,
     isChartLoading: Boolean,
+    error: String?,
     onPeriodSelected: (Int) -> Unit
 ) {
+    val colors = MaterialTheme.colorScheme
+    var selectedDay by remember { mutableIntStateOf(1) }
+
+    LaunchedEffect(selectedDay) {
+        onPeriodSelected(selectedDay)
+    }
+
     Column {
         if (isChartLoading) {
-            Box(
+            LoadingOrErrorMessage(
+                isError = error != null,
+                errorMessage = {
+                    ErrorMessage(
+                        onClick = { onPeriodSelected(selectedDay) }
+                    )
+                },
+                loading = {
+                    Loading(
+                        modifier = Modifier.padding(horizontal = 170.dp)
+                    )
+                },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .fillMaxHeight()
-                    .weight(1f),
-                contentAlignment = Alignment
-                    .CenterVertically
-                    .plus(Alignment.CenterHorizontally)
-            ) {
-                Loading(modifier = Modifier)
-            }
+            )
         } else {
             CurrencyChart(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
                     .padding(bottom = 6.dp),
-                costs = (prices.ifEmpty { listOf(1000f, 1299f, 1100f, 1040f) }).map { it }
+                costs = (prices.ifEmpty { listOf(0f, 0f) }).map { it }
             )
         }
 
         val timePeriods = mapOf("1D" to 1, "1W" to 7, "1M" to 30, "1Y" to 365)
 
-        RadioButtonRow(
+        Row(
             modifier = Modifier
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            contents = timePeriods.map {
-                RadioButton(
-                    selectableComposable = @Composable
-                    { selected: Boolean ->
-                        Box(
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .background(
-                                    if (selected) defaultScheme.primary
-                                    else defaultScheme.surface
-                                )
-                        ) {
-                            Box(modifier = Modifier.padding(18.dp))
-                        }
+        ) {
+            timePeriods.forEach { (dayStr, dayNum) ->
 
-                        Text(
-                            modifier = Modifier
-                                .padding(10.dp),
-                            text = it.key,
-                            style = AppTypography.bodySmall
-                        )
-                    },
-                    onClick = { onPeriodSelected(it.value) }
-                )
+                val selected = selectedDay == dayNum
+
+                Box(
+                    modifier = Modifier
+                        .wrapContentSize(),
+                    contentAlignment = Alignment.Center
+//                        .padding(vertical = 10.dp, horizontal = 14.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .background( if (selected) colors.primary else colors.surface )
+                            .clip(CircleShape)
+                            .clickable { selectedDay = dayNum }
+                    ) {
+                        Box(modifier = Modifier.padding(18.dp))
+                    }
+
+                    Text(
+                        text = dayStr,
+                        style = AppTypography.bodySmall,
+                        color = if (selected) colors.onPrimary else colors.onSurface
+                    )
+                }
             }
-        )
+        }
     }
 }
 
 @Composable
 private fun TransactionContent() {
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .fillMaxHeight()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
     ) {
         Text(text = "TODO")
     }

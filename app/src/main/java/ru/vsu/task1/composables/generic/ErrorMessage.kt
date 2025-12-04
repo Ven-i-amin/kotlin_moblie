@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,6 +27,8 @@ fun ErrorMessage(
     buttonMessage: String = "Restart",
     onClick: () -> Unit = {}
 ) {
+    val colors = MaterialTheme.colorScheme
+
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -43,12 +47,14 @@ fun ErrorMessage(
             text = errorMessage
         )
 
-        RadioButtonButton (
+        Button (
             modifier = Modifier
                 .clip(RoundedCornerShape(12f))
-                .background(color = defaultScheme.error)
                 .padding(5.dp),
-            selected = true,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = colors.error,
+                contentColor = colors.onError
+            ),
             onClick = onClick,
         ) {
             Text(
