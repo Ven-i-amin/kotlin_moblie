@@ -1,4 +1,4 @@
-package ru.vsu.task1.interceptor
+package ru.vsu.task1.app.interceptor
 
 import okhttp3.Interceptor
 import okhttp3.Response
