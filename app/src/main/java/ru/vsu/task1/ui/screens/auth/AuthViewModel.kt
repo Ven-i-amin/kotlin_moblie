@@ -6,12 +6,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import ru.vsu.task1.domain.usecases.UserUseCase
+import ru.vsu.task1.domain.usecases.ProfileUseCase
 import ru.vsu.task1.data.repository.auth.AuthRepository
 
 class AuthViewModel(
     private val repository: AuthRepository,
-    private val userUseCase: UserUseCase
+    private val userUseCase: ProfileUseCase
 ) : ViewModel() {
     // loading
     private val _isLoading = MutableStateFlow(false)

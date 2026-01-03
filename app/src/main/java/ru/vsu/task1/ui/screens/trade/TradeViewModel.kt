@@ -9,10 +9,13 @@ import kotlinx.coroutines.launch
 import ru.vsu.task1.domain.models.coin.CoinInfo
 import ru.vsu.task1.data.repository.coin.CoinRepository
 import ru.vsu.task1.data.repository.trade.TradeRepository
+import ru.vsu.task1.domain.usecases.CoinUseCase
+import java.time.Instant
 
 class TradeViewModel(
     private val repository: TradeRepository,
-    private val coinRepository: CoinRepository
+    private val coinRepository: CoinRepository,
+    private val coinUseCase: CoinUseCase
 ) : ViewModel() {
     // coin info
     private val _coinInfo = MutableStateFlow<CoinInfo?>(null)
@@ -33,23 +36,19 @@ class TradeViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    init {
-        fetchMarketChart("bitcoin", "usd", "1")
-    }
-
-    fun fetchMarketChart(coinId: String, vsCurrency: String, days: String) {
+    fun fetchMarketChart(bitgetSymbol: String, days: String) {
         _isChartLoading.value = true
         _error.value = null
 
         viewModelScope.launch {
             try {
-                val response = repository.getHistoryPrices(
-                    id = coinId,
-                    vsCurrency = vsCurrency,
-                    days = days
+                val response = repository.getMarketChart(
+                    bitgetSymbol = bitgetSymbol,
+                    granularity = days,
+                    endTime = System.currentTimeMillis().toString()
                 )
 
-                _prices.value = response.prices.map { it[1].toFloat() }
+                _prices.value = response.data.map { it[4].toFloat() }
                 _isChartLoading.value = false
             } catch (e: Exception) {
                 _error.value = "Failed to load data: ${e.message}"
@@ -65,7 +64,7 @@ class TradeViewModel(
 
         viewModelScope.launch {
             try {
-                val response = coinRepository.getCoinInfo(coinId)
+                val response = coinUseCase.getCoinInfo(coinId)
                 _coinInfo.value = response
                 _isLoading.value = false
             } catch (e: Exception) {

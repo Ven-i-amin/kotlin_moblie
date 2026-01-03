@@ -5,9 +5,10 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 import ru.vsu.task1.domain.models.coin.CoinInfo
+import ru.vsu.task1.domain.models.coin.CoinName
 import ru.vsu.task1.domain.models.trade.MarketChart
 
-interface CoinService {
+interface CoinGeckoService {
     /**
      * @param id id криптовалюты (например, "bitcoin").
      * @param vsCurrency валюта для сравнения (например, "usd").
@@ -20,8 +21,12 @@ interface CoinService {
         @Query("days") days: String,
     ): Response<MarketChart>
 
-    @GET("api/v3/coins/{id}?tickers=false&community_data=false&developer_data=false&sparkline=false&market_data=true")
-    suspend fun getCoinInfo(
-        @Path("id") id: String
-    ): Response<CoinInfo>
+    @GET("/api/v3/coins/list")
+    suspend fun getCoins(): Response<List<CoinName>>
+
+    @GET("/api/v3/coins/markets")
+    suspend fun getMarketInfo(
+        @Query("vs_currency") vsCurrency: String = "usd",
+        @Query("name") name: String = ""
+    ): Response<List<CoinInfo>>
 }

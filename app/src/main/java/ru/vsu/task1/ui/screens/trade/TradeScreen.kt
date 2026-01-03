@@ -82,7 +82,7 @@ fun TradeScreen(
                         ) {
                             if (coinInfo?.image != null) {
                                 SmallImage(
-                                    url = coinInfo?.image?.small,
+                                    url = coinInfo?.image,
                                     description = currency
                                 )
                             }
@@ -148,11 +148,10 @@ fun TradeScreen(
             MainContent(
                 coinInfo = coinInfo,
                 prices = prices,
-                onPeriodSelected = { days ->
+                onPeriodSelected = { days: String ->
                     viewModel.fetchMarketChart(
-                        currency,
-                        "usd",
-                        days.toString()
+                        coinInfo?.bitgetSymbol ?: "",
+                        days
                     )
                 },
                 isChartLoading = isChartLoading,
@@ -168,7 +167,7 @@ private fun MainContent(
     prices: List<Float>,
     isChartLoading: Boolean = false,
     error: String?,
-    onPeriodSelected: (Int) -> Unit
+    onPeriodSelected: (String) -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
 
@@ -193,8 +192,8 @@ private fun MainContent(
                     text = String.format(
                         Locale.US,
                         "%+.2f%% ($%.2f) ",
-                        coinInfo?.marketData?.priceChangePercentage24h,
-                        coinInfo?.marketData?.priceChange24h,
+                        coinInfo?.priceChangePercentage24h,
+                        coinInfo?.priceChange24h,
                     ),
                     color = colors.primary,
                     style = AppTypography.bodyMedium
@@ -273,10 +272,10 @@ private fun ChartContent(
     prices: List<Float>,
     isChartLoading: Boolean,
     error: String?,
-    onPeriodSelected: (Int) -> Unit
+    onPeriodSelected: (String) -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
-    var selectedDay by remember { mutableIntStateOf(1) }
+    var selectedDay by remember { mutableStateOf("3min") }
 
     LaunchedEffect(selectedDay) {
         onPeriodSelected(selectedDay)
@@ -309,7 +308,7 @@ private fun ChartContent(
             )
         }
 
-        val timePeriods = mapOf("1D" to 1, "1W" to 7, "1M" to 30, "1Y" to 365)
+        val timePeriods = mapOf("1D" to "3min", "1W" to "4h", "1M" to "6h", "1Y" to "1day")
 
         Row(
             modifier = Modifier
