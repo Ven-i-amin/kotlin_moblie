@@ -53,9 +53,9 @@ import kotlin.math.sin
 import kotlin.random.Random
 import com.patrykandpatrick.vico.core.cartesian.layer.LineCartesianLayer as LineLayer
 const val STEPS_NUMBER = 50
-const val CIRCLE_ANGLE = 360
-const val DELTA_STEP = CIRCLE_ANGLE.toFloat() / STEPS_NUMBER
-const val GRADUS = PI / 180;
+const val CIRCLE_ANGLE = 360f
+const val DELTA_STEP = CIRCLE_ANGLE / STEPS_NUMBER
+const val GRADUS = PI / 180
 
 
 private val circle: Shape = Shape { _, path, left, top, right, bottom ->
@@ -228,7 +228,7 @@ private fun PreviewLineChart() {
                     .weight(1f),
                 costs = prices.ifEmpty { values }
             )
-            Button(onClick = { viewModel.fetchMarketChart("bitcoin", vsCurrency = "usd", days = "1") }) {
+            Button(onClick = { viewModel.fetchMarketChart("bitcoin", days = "1") }) {
                 Text("Clicked $clicked times")
             }
         }

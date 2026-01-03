@@ -382,7 +382,7 @@ private fun Watchlist(
                     modifier = Modifier.clickable(
                         onClick = {navController.navigate("trade/${coin.id}")}
                     ),
-                    icon = coin.image?.small,
+                    icon = coin.image,
                     iconDescription = coin.name,
                     middleColumn = {
                         Column(
@@ -407,16 +407,16 @@ private fun Watchlist(
                             horizontalAlignment = Alignment.End,
                             verticalArrangement = Arrangement.SpaceBetween
                         ) {
+                            val priceText = coin.currentPrice?.let { price ->
+                                String.format(Locale.US, "$%.2f", price)
+                            } ?: "Not available"
+
                             Text(
-                                text = String.format(
-                                    Locale.US,
-                                    "$%.2f",
-                                    coin.marketData?.currentPrice?.get("usd") ?: "Not avaible"
-                                ),
+                                text = priceText,
                                 style = AppTypography.bodyMedium,
                             )
 
-                            val percentageChange = coin.marketData?.priceChangePercentage24h ?: 0.0
+                            val percentageChange = coin.priceChangePercentage24h ?: 0.0
 
                             Text(
                                 text = String.format(
@@ -424,7 +424,6 @@ private fun Watchlist(
                                     "%s%.2f%%",
                                     if (percentageChange >= 0) "+" else "-",
                                     abs(percentageChange)
-
                                 ),
                                 style = AppTypography.bodySmall,
                                 color = defaultScheme.primary
@@ -440,7 +439,7 @@ private fun Watchlist(
 @Composable
 private fun TransactionPanel(transaction: Map.Entry<Transaction, CoinInfo>) {
     CurrencyPanel(
-        icon = transaction.value.image?.small,
+        icon = transaction.value.image,
         iconDescription = transaction.key.currencyName,
         middleColumn = {
             Column(

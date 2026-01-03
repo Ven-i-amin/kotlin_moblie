@@ -6,18 +6,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import ru.vsu.task1.domain.usecases.UserUseCase
-import ru.vsu.task1.domain.models.home.Transaction
-import ru.vsu.task1.domain.models.coin.CoinInfo
-import ru.vsu.task1.data.repository.coin.CoinRepository
-import ru.vsu.task1.data.repository.home.HomeRepository
 import ru.vsu.task1.data.repository.auth.AuthRepository
+import ru.vsu.task1.data.repository.home.HomeRepository
+import ru.vsu.task1.domain.models.coin.CoinInfo
+import ru.vsu.task1.domain.models.home.Transaction
+import ru.vsu.task1.domain.usecases.CoinUseCase
+import ru.vsu.task1.domain.usecases.ProfileUseCase
 
 class HomeViewModel(
     private val repository: HomeRepository,
-    private val coinRepository: CoinRepository,
     private val loginRepository: AuthRepository,
-    private val userUseCase: UserUseCase,
+    private val userUseCase: ProfileUseCase,
+    private val coinUseCase: CoinUseCase
 ) : ViewModel() {
     // loading
     private val _isLoadingBalance = MutableStateFlow(false)
@@ -51,12 +51,20 @@ class HomeViewModel(
 
         viewModelScope.launch {
             try {
-                val response = repository.getUserTransactions(
+                val transactionResponse = repository.getUserTransactions(
                     userUseCase.userToken.value ?: "token"
                 )
 
-                _transactions.value = response
-                    .associateWith { coinRepository.getCoinInfo(it.currencyName) }
+                val coinListResponse = coinUseCase.getCoinList()
+
+                _transactions.value = transactionResponse
+                    .associateWith { transaction ->
+                        coinListResponse.find {
+                            it.id == transaction.currencyName
+                        }
+                    }
+                    .filterValues { it != null }
+                    .mapValues { it.value!! }
                     .toSortedMap { o1, o2 -> -o1.timestamp.compareTo(o2.timestamp) }
 
                 _isLoadingTransactions.value = false
@@ -72,14 +80,28 @@ class HomeViewModel(
 
         viewModelScope.launch {
             try {
-                val response = loginRepository.getUserInfo(
+                val watchlistResponse = loginRepository.getUserInfo(
                     userUseCase.userToken.value ?: "token"
                 )
 
-                _watchlistCoins.value = response
+                val coinInfoResponse = coinUseCase.getCoinList()
+
+                _watchlistCoins.value = watchlistResponse
                     .watchlist
-                    .map {
-                        coinRepository.getCoinInfo(it)
+                    .map { el ->
+                        val coinInfo = coinInfoResponse.find {
+                            it.id == el
+                        }
+
+                        if (coinInfo == null) {
+                            return@map CoinInfo(
+                                id = el,
+                                symbol = el,
+                                name = el,
+                            )
+                        }
+
+                        coinInfo
                     }
 
                 _isLoadingCoins.value = false
