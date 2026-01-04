@@ -10,7 +10,6 @@ import ru.vsu.task1.domain.models.coin.CoinInfo
 import ru.vsu.task1.data.repository.coin.CoinRepository
 import ru.vsu.task1.data.repository.trade.TradeRepository
 import ru.vsu.task1.domain.usecases.CoinUseCase
-import java.time.Instant
 
 class TradeViewModel(
     private val repository: TradeRepository,
@@ -26,32 +25,42 @@ class TradeViewModel(
     val prices: StateFlow<List<Float>> = _prices.asStateFlow()
 
     // loading
-    private val _isLoading = MutableStateFlow(false)
+    private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    private val _isChartLoading = MutableStateFlow(false)
+    private val _isChartLoading = MutableStateFlow(true)
     val isChartLoading: StateFlow<Boolean> = _isChartLoading.asStateFlow()
 
     // error
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    fun fetchMarketChart(bitgetSymbol: String, days: String) {
+    private val _chartError = MutableStateFlow<String?>(null)
+    val chartError: StateFlow<String?> = _chartError.asStateFlow()
+
+
+    fun fetchMarketChart(bitgetSymbol: String, timeGaps: String) {
+        _chartError.value = null
+        if (bitgetSymbol.isBlank()) {
+            _isChartLoading.value = false
+            return
+        }
+
         _isChartLoading.value = true
-        _error.value = null
 
         viewModelScope.launch {
             try {
                 val response = repository.getMarketChart(
                     bitgetSymbol = bitgetSymbol,
-                    granularity = days,
+                    granularity = timeGaps,
                     endTime = System.currentTimeMillis().toString()
                 )
 
                 _prices.value = response.data.map { it[4].toFloat() }
                 _isChartLoading.value = false
             } catch (e: Exception) {
-                _error.value = "Failed to load data: ${e.message}"
+                _chartError.value = "Failed to load data: ${e.message}"
+                _isChartLoading.value = false
                 e.printStackTrace()
 
             }

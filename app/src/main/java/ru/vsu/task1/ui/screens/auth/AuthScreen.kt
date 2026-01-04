@@ -45,15 +45,23 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import ru.vsu.task1.ui.composables.generic.Loading
+import ru.vsu.task1.ui.navigation.AppBarViewModel
 import ru.vsu.task1.ui.theme.AppTypography
 import ru.vsu.task1.ui.theme.defaultScheme
 
 @Composable
 fun AuthScreen(
     navController: NavController,
-    viewModel: AuthViewModel = koinViewModel()
+    viewModel: AuthViewModel = koinViewModel(),
+    appBarViewModel: AppBarViewModel = koinInject()
 ) {
+    LaunchedEffect(Unit) {
+        appBarViewModel.setTopBar {  }
+        appBarViewModel.hideBottomBar()
+    }
+
     val authToken by viewModel.authToken.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
@@ -327,3 +335,4 @@ private fun AuthScreenPreview() {
         AuthScreen(navController = rememberNavController())
     }
 }
+

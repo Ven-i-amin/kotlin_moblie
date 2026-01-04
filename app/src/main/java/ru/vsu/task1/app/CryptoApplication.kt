@@ -15,6 +15,7 @@ import ru.vsu.task1.app.di.dataModule
 import ru.vsu.task1.app.di.domainModule
 import ru.vsu.task1.app.di.networkModule
 import ru.vsu.task1.ui.navigation.MainNavigation
+import ru.vsu.task1.ui.theme.AppTypography
 import ru.vsu.task1.ui.theme.defaultScheme
 
 class CryptoApplication : Application() {
@@ -42,7 +43,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             KoinContext {
-                MaterialTheme(defaultScheme) {
+                MaterialTheme(
+                    colorScheme = defaultScheme,
+                    typography = AppTypography
+                ) {
                     val navController = rememberNavController()
 
                     MainNavigation(navController = navController)

@@ -1,7 +1,10 @@
 package ru.vsu.task1.ui.composables.generic
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -36,14 +39,15 @@ fun Loading(modifier: Modifier = Modifier){
 
     val rotation = currentStep * rotationDegree.toFloat()
 
-    Icon(
-        modifier = modifier
-            .padding(1.dp)
-            .graphicsLayer(rotationZ = rotation)
-            .height(100.dp)
-            .width(100.dp),
-        painter = painterResource(id = R.drawable.ic_loading_24),
-        contentDescription = "loading",
-        tint = defaultScheme.primary
-    )
+    Box(modifier = modifier) {
+        Icon(
+            modifier = Modifier
+                .padding(1.dp)
+                .graphicsLayer(rotationZ = rotation)
+                .sizeIn(1.dp, 1.dp, maxWidth = 20.dp, maxHeight = 20.dp),
+            painter = painterResource(id = R.drawable.ic_loading_24),
+            contentDescription = "loading",
+            tint = defaultScheme.primary
+        )
+    }
 }

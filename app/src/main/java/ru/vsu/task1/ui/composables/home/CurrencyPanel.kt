@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,12 +30,13 @@ fun CurrencyPanel(
     middleColumn: @Composable (() -> Unit),
     rightColumn: @Composable (() -> Unit)
 ) {
+    val colors = MaterialTheme.colorScheme
     Row(
         modifier = modifier
             .wrapContentSize()
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(color = defaultScheme.secondary)
+            .background(color = colors.secondary)
             .padding(vertical = 12.dp)
             .padding(start = 12.dp)
             .padding(end = 6.dp)
@@ -73,42 +75,46 @@ fun CurrencyPanel(
 @Preview(showBackground = true)
 @Composable
 private fun Preview() {
-    CurrencyPanel(
-        icon = null,
-        iconDescription = "nothing",
-        middleColumn = {
-            Column(
-                modifier = Modifier.fillMaxHeight(),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Bought ETH",
-                    style = AppTypography.bodyMedium
-                )
+    MaterialTheme(colorScheme = defaultScheme) {
+        val colors = MaterialTheme.colorScheme
 
-                Text(
-                    text = "-100.00",
-                    style = AppTypography.bodySmall,
-                    color = defaultScheme.onSecondary
-                )
+        CurrencyPanel(
+            icon = null,
+            iconDescription = "nothing",
+            middleColumn = {
+                Column(
+                    modifier = Modifier.fillMaxHeight(),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Bought ETH",
+                        style = AppTypography.bodyMedium
+                    )
 
-                Text(
-                    text = "data",
-                    style = AppTypography.bodySmall,
-                    color = defaultScheme.onSecondary
-                )
+                    Text(
+                        text = "-100.00",
+                        style = AppTypography.bodySmall,
+                        color = colors.onSecondary
+                    )
+
+                    Text(
+                        text = "data",
+                        style = AppTypography.bodySmall,
+                        color = colors.onSecondary
+                    )
+                }
+            },
+            rightColumn = {
+                Column(
+                    modifier = Modifier.fillMaxHeight(),
+                    verticalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "+0.65",
+                        style = AppTypography.bodyMedium,
+                    )
+                }
             }
-        },
-        rightColumn = {
-            Column(
-                modifier = Modifier.fillMaxHeight(),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "+0.65",
-                    style = AppTypography.bodyMedium,
-                )
-            }
-        }
-    )
+        )
+    }
 }
