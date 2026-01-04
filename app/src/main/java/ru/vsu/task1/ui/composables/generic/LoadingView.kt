@@ -8,17 +8,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 @Composable
-fun LoadingOrErrorMessage(
+fun LoadingView(
     modifier: Modifier = Modifier,
+    isLoading: Boolean = false,
     isError: Boolean = false,
-    errorMessage: @Composable () -> Unit = { ErrorMessage() },
-    loading: @Composable () -> Unit,
+    onLoading: @Composable () -> Unit,
+    onError: @Composable () -> Unit = { ErrorMessage() },
+    onSuccess: @Composable () -> Unit = {}
 ) {
     Box (
         modifier = modifier
     ) {
         if (isError) {
-            return@Box Box(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .fillMaxHeight(),
@@ -26,19 +28,21 @@ fun LoadingOrErrorMessage(
                     .CenterVertically
                     .plus(Alignment.CenterHorizontally)
             ) {
-                errorMessage()
+                onError()
+            }
+        } else if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(),
+                contentAlignment = Alignment
+                    .CenterVertically
+                    .plus(Alignment.CenterHorizontally)
+            ) {
+                onLoading()
             }
         } else {
-            return@Box Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(),
-                contentAlignment = Alignment
-                    .CenterVertically
-                    .plus(Alignment.CenterHorizontally)
-            ) {
-                loading()
-            }
+            onSuccess()
         }
     }
 }

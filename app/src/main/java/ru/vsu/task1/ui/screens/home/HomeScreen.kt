@@ -6,7 +6,6 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -21,19 +20,11 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,18 +35,25 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import org.threeten.bp.Instant
 import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatter
 import ru.vsu.task1.R
-import ru.vsu.task1.domain.models.home.Transaction
 import ru.vsu.task1.domain.models.coin.CoinInfo
+import ru.vsu.task1.domain.models.home.Transaction
+import ru.vsu.task1.ui.composables.generic.CoinList
 import ru.vsu.task1.ui.composables.generic.ErrorMessage
 import ru.vsu.task1.ui.composables.generic.Loading
-import ru.vsu.task1.ui.composables.generic.LoadingOrErrorMessage
+import ru.vsu.task1.ui.composables.generic.LoadingView
+import ru.vsu.task1.ui.composables.generic.topbar.DefaultTopBar
 import ru.vsu.task1.ui.composables.home.CurrencyPanel
+import ru.vsu.task1.ui.navigation.AppBarViewModel
 import ru.vsu.task1.ui.theme.AppTypography
 import ru.vsu.task1.ui.theme.defaultScheme
+import ru.vsu.task1.utils.formatPercentage
+import ru.vsu.task1.utils.formatPrice
+import ru.vsu.task1.utils.formatTimestamp
 import java.util.Locale
 import kotlin.math.abs
 
@@ -63,9 +61,13 @@ import kotlin.math.abs
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: HomeViewModel = koinViewModel()
+    viewModel: HomeViewModel = koinViewModel(),
+    appBarViewModel: AppBarViewModel = koinInject()
 ) {
     LaunchedEffect(Unit) {
+        appBarViewModel.setTopBar { DefaultTopBar(title = "Home") { /*TODO*/ } }
+        appBarViewModel.showBottomBar()
+
         viewModel.fetchBalance()
         viewModel.fetchWatchlist()
         viewModel.fetchUserTransactions()
@@ -78,107 +80,29 @@ fun HomeScreen(
     val coins by viewModel.watchlistCoins.collectAsState()
     val balance by viewModel.balance.collectAsState()
 
-    MaterialTheme(colorScheme = defaultScheme) {
-        Scaffold(
-            topBar = {
-                Column(
-                    modifier = Modifier
-                ) {
-                    TopAppBar(
-                        title = {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.Center,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    color = defaultScheme.onPrimary,
-                                    text = "Home",
-                                    style = AppTypography.bodyLarge
-                                )
-                            }
-                        },
-                        navigationIcon = {
-                            IconButton(
-                                onClick = { /* Handle back navigation */ }
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_hamburger_24),
-                                    contentDescription = "Back"
-                                )
-                            }
-                        },
-                        actions = {
-                            Box(modifier = Modifier.fillMaxWidth(0.1f))
-                        }
-                    )
-                }
-            },
-            bottomBar = {
-                var selected by remember { mutableIntStateOf(0) }
-
-                NavigationBar(
-                    containerColor = defaultScheme.background,
-
-                ) {
-                    val icons = listOf(
-                        R.drawable.ic_home_24,
-                        R.drawable.ic_portfolio_24,
-                        R.drawable.ic_trade_24,
-                        R.drawable.ic_account_24
-                    )
-
-                    icons.forEachIndexed { index, icon ->
-                        NavigationBarItem(
-                            selected = selected == index,
-                            onClick = { selected = index },
-                            colors = NavigationBarItemDefaults.colors(
-                                selectedIconColor = defaultScheme.primary,
-                                indicatorColor = Color.Transparent,
-                                unselectedIconColor = defaultScheme.onSurface
-                            ),
-                            icon = {
-                                Icon(
-                                    painter = painterResource(id = icon),
-                                    contentDescription = "Home"
-                                )
-                            }
-                        )
-                    }
-                }
-            }
-        ) { pv ->
-            Box(
-                Modifier
-                    .padding(pv)
-                    .fillMaxHeight()
+    LoadingView(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(),
+        isLoading = isLoadingCoins || isLoadingTransaction,
+        isError = error != null,
+        onLoading = { Loading(modifier = Modifier.padding(horizontal = 170.dp)) },
+        onError = {
+            ErrorMessage(
+                errorMessage = error ?: "none",
             ) {
-                if (isLoadingCoins || isLoadingTransaction) {
-                    return@Box LoadingOrErrorMessage(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(),
-                        isError = error != null,
-                        errorMessage = { ErrorMessage(
-                            errorMessage = error ?: "none",
-                        ) {
-                            viewModel.fetchBalance()
-                            viewModel.fetchWatchlist()
-                            viewModel.fetchUserTransactions()
-                        }},
-                        loading = { Loading(modifier = Modifier.padding(horizontal = 170.dp)) }
-                    )
-                }
-
-
-                MainContent(
-                    navController = navController,
-                    transactions = transactions,
-                    coins = coins,
-                    balance = balance
-                )
+                viewModel.fetchBalance()
+                viewModel.fetchWatchlist()
+                viewModel.fetchUserTransactions()
             }
         }
+    ) {
+        MainContent(
+            navController = navController,
+            transactions = transactions,
+            coins = coins,
+            balance = balance
+        )
     }
 }
 
@@ -377,61 +301,7 @@ private fun Watchlist(
         Column(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            for (coin in coins) {
-                CurrencyPanel(
-                    modifier = Modifier.clickable(
-                        onClick = {navController.navigate("trade/${coin.id}")}
-                    ),
-                    icon = coin.image,
-                    iconDescription = coin.name,
-                    middleColumn = {
-                        Column(
-                            modifier = Modifier.fillMaxHeight(),
-                            verticalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = coin.name,
-                                style = AppTypography.bodyMedium
-                            )
-
-                            Text(
-                                text = coin.symbol.uppercase(),
-                                style = AppTypography.bodyMedium,
-                                color = defaultScheme.onSecondary
-                            )
-                        }
-                    },
-                    rightColumn = {
-                        Column(
-                            modifier = Modifier.fillMaxHeight(),
-                            horizontalAlignment = Alignment.End,
-                            verticalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            val priceText = coin.currentPrice?.let { price ->
-                                String.format(Locale.US, "$%.2f", price)
-                            } ?: "Not available"
-
-                            Text(
-                                text = priceText,
-                                style = AppTypography.bodyMedium,
-                            )
-
-                            val percentageChange = coin.priceChangePercentage24h ?: 0.0
-
-                            Text(
-                                text = String.format(
-                                    Locale.US,
-                                    "%s%.2f%%",
-                                    if (percentageChange >= 0) "+" else "-",
-                                    abs(percentageChange)
-                                ),
-                                style = AppTypography.bodySmall,
-                                color = defaultScheme.primary
-                            )
-                        }
-                    }
-                )
-            }
+            CoinList(modifier =  Modifier, coins = coins, navController = navController)
         }
     }
 }
@@ -491,15 +361,4 @@ private fun TransactionPanel(transaction: Map.Entry<Transaction, CoinInfo>) {
             }
         }
     )
-}
-
-fun formatTimestamp(timestamp: Long): String {
-    val formatter = DateTimeFormatter.ofPattern(
-        "dd MMM yyyy, h.mm a",
-        Locale.ENGLISH
-    )
-
-    return Instant.ofEpochMilli(timestamp)
-        .atZone(ZoneId.systemDefault())
-        .format(formatter)
 }
