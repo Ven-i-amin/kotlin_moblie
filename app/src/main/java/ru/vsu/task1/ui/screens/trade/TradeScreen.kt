@@ -7,11 +7,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -31,16 +32,21 @@ import androidx.navigation.NavController
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import ru.vsu.task1.domain.models.coin.CoinInfo
+import ru.vsu.task1.domain.models.home.Order
 import ru.vsu.task1.ui.composables.generic.ErrorMessage
 import ru.vsu.task1.ui.composables.generic.Loading
 import ru.vsu.task1.ui.composables.generic.LoadingView
 import ru.vsu.task1.ui.composables.generic.RadioButton
 import ru.vsu.task1.ui.composables.generic.RadioButtonRow
 import ru.vsu.task1.ui.composables.generic.topbar.TradeTopBar
+import ru.vsu.task1.ui.composables.home.CurrencyPanel
 import ru.vsu.task1.ui.composables.trade.CurrencyChart
 import ru.vsu.task1.ui.composables.trade.ValueAndChangeColumn
 import ru.vsu.task1.ui.navigation.AppBarViewModel
+import ru.vsu.task1.ui.screens.home.TransactionPanel
 import ru.vsu.task1.ui.theme.AppTypography
+import ru.vsu.task1.utils.formatDecimal
+import ru.vsu.task1.utils.formatPrice
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,15 +57,23 @@ fun TradeScreen(
     appBarViewModel: AppBarViewModel = koinInject()
 ) {
     val coinInfo by viewModel.coinInfo.collectAsState()
+    val watchlistOn by viewModel.watchlistOn.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.fetchCoinInfo(currency)
+        viewModel.fetchWatchlist()
+    }
 
+    LaunchedEffect(watchlistOn) {
         appBarViewModel.setTopBar {
             TradeTopBar(
                 modifier = Modifier,
                 navController = navController,
-                coinInfo = coinInfo
+                coinInfo = coinInfo,
+                isStarred = watchlistOn,
+                onStarClick = {
+                    viewModel.fetchWatchlist()
+                }
             )
         }
         appBarViewModel.hideBottomBar()
@@ -168,9 +182,8 @@ private fun MainContent(
                     error = error,
                     onPeriodSelected = onPeriodSelected
                 )
-
                 "transaction" -> TransactionContent()
-                "orders" -> TransactionContent()
+                "orders" -> OrderContent()
             }
         }
 
@@ -266,11 +279,137 @@ private fun ChartContent(
 }
 
 @Composable
-private fun TransactionContent() {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        Text(text = "TODO")
+private fun TransactionContent(
+    viewModel: TradeViewModel = koinViewModel(),
+) {
+    val typography = MaterialTheme.typography
+
+    val transactions by viewModel.transaction.collectAsState()
+    val isLoading by viewModel.loadingTransactions.collectAsState()
+    val error by viewModel.error.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchTransaction()
     }
+
+    LoadingView(
+        isLoading = isLoading,
+        isError = error != null,
+        onLoading = { Loading() },
+        onError = { ErrorMessage { viewModel.fetchTransaction() } }
+    ) {
+        Column(
+            modifier = Modifier.padding(top = 12.dp)
+        ) {
+            if (transactions.isEmpty()) {
+                return@LoadingView Text(
+                    text = "You hadn't traded this coin yet!",
+                    style = typography.titleLarge
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                transactions.forEach {
+                    TransactionPanel(it)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun OrderPanel(order: Pair<Order, CoinInfo?>) {
+    val typography = MaterialTheme.typography
+
+    CurrencyPanel(
+        icon = order.second?.image,
+        iconDescription = order.first.currencyName,
+        middleColumn = {
+            Column(
+                modifier = Modifier.fillMaxHeight(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = order.first.type,
+                    style = typography.bodyMedium
+                )
+
+                Text(
+                    text = formatPrice(order.first.price),
+                    style = typography.bodyMedium
+                )
+
+                Text(
+                    text = formatDecimal(order.first.amount),
+                    style = typography.bodyMedium
+                )
+            }
+        },
+        rightColumn = {
+            Column(
+                modifier = Modifier.fillMaxHeight(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = order.first.status,
+                    style = typography.bodyMedium,
+                )
+            }
+        }
+    )
+}
+
+@Composable
+private fun OrderContent(
+    viewModel: TradeViewModel = koinViewModel(),
+) {
+    val typography = MaterialTheme.typography
+
+    val coinInfo by viewModel.coinInfo.collectAsState()
+    val orders by viewModel.orders.collectAsState()
+    val isLoading by viewModel.loadingOrders.collectAsState()
+    val error by viewModel.error.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchOrders()
+    }
+
+    LoadingView(
+        isLoading = isLoading,
+        isError = error != null,
+        onLoading = { Loading() },
+        onError = { ErrorMessage { viewModel.fetchOrders() } }
+    ) {
+        Column(
+            modifier = Modifier.padding(top = 12.dp)
+        ) {
+            if (orders.isEmpty()) {
+                return@LoadingView Text(
+                    text = "You don't have any orders!",
+                    style = typography.titleLarge
+                )
+            }
+
+            Column(
+                modifier = Modifier
+                    .padding(top = 12.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                orders.forEach { order ->
+                    OrderPanel(order to coinInfo)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TradePanel() {
+
 }

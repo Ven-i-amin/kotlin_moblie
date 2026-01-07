@@ -1,6 +1,7 @@
 package ru.vsu.task1.data.repository.home
 
 import android.util.Log
+import ru.vsu.task1.domain.models.home.Order
 import ru.vsu.task1.domain.models.home.UserCoin
 import ru.vsu.task1.domain.models.home.Transaction
 
@@ -27,6 +28,13 @@ class HomeRepositoryImpl() : HomeRepository {
             "bitcoin",
             "ethereum",
             "solana"
+        )
+    }
+
+    override suspend fun getOrders(authToken: String): List<Order> {
+        return listOf(
+            Order(1, "bitcoin", "Bitcoin", "buy", 10.0, 10000.0, "open"),
+            Order(2, currencyId = "bitcoin", currencyName = "Bitcoin", type = "sell", amount = 5.0, price = 12000.0, status = "open")
         )
     }
 }

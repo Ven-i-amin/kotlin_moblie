@@ -5,6 +5,7 @@ import ru.vsu.task1.data.services.BitgetService
 import ru.vsu.task1.data.services.CoinGeckoService
 import ru.vsu.task1.domain.models.coin.CoinInfo
 import ru.vsu.task1.domain.models.coin.CoinName
+import ru.vsu.task1.domain.models.home.Transaction
 
 private const val TO_PERCENTAGES = 100
 

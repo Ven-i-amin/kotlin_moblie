@@ -2,6 +2,7 @@ package ru.vsu.task1.data.repository.coin
 
 import ru.vsu.task1.domain.models.coin.CoinInfo
 import ru.vsu.task1.domain.models.coin.CoinName
+import ru.vsu.task1.domain.models.home.Transaction
 
 interface CoinRepository {
     suspend fun getMarketCoinInfo(coinInfo: CoinInfo): CoinInfo

@@ -301,7 +301,7 @@ private fun Watchlist(
 }
 
 @Composable
-private fun TransactionPanel(transaction: Map.Entry<Transaction, CoinInfo>) {
+fun TransactionPanel(transaction: Map.Entry<Transaction, CoinInfo>) {
     CurrencyPanel(
         icon = transaction.value.image,
         iconDescription = transaction.key.currencyName,

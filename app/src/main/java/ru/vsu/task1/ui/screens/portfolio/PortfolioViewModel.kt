@@ -39,13 +39,13 @@ class PortfolioViewModel(
                 }
 
                 getCoinsBalances()
+
+                _loading.value = false
             } catch (e: Exception) {
                 _error.value = "Failed to fetch user coins"
                 e.printStackTrace()
             }
         }
-
-        _loading.value = false
     }
 
     private fun getCoinsBalances() {

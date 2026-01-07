@@ -12,12 +12,14 @@ import ru.vsu.task1.domain.models.coin.CoinInfo
 import ru.vsu.task1.domain.models.home.Transaction
 import ru.vsu.task1.domain.usecases.CoinUseCase
 import ru.vsu.task1.domain.usecases.ProfileUseCase
+import ru.vsu.task1.domain.usecases.UserCoinUseCase
 
 class HomeViewModel(
     private val repository: HomeRepository,
     private val loginRepository: AuthRepository,
     private val userUseCase: ProfileUseCase,
-    private val coinUseCase: CoinUseCase
+    private val coinUseCase: CoinUseCase,
+    private val userCoinUseCase: UserCoinUseCase
 ) : ViewModel() {
     // loading
     private val _isLoadingBalance = MutableStateFlow(false)
@@ -51,25 +53,12 @@ class HomeViewModel(
 
         viewModelScope.launch {
             try {
-                val transactionResponse = repository.getUserTransactions(
-                    userUseCase.userToken.value ?: "token"
-                )
-
-                val coinListResponse = coinUseCase.getCoinList()
-
-                _transactions.value = transactionResponse
-                    .associateWith { transaction ->
-                        coinListResponse.find {
-                            it.id == transaction.currencyName
-                        }
-                    }
-                    .filterValues { it != null }
-                    .mapValues { it.value!! }
-                    .toSortedMap { o1, o2 -> -o1.timestamp.compareTo(o2.timestamp) }
+                _transactions.value = userCoinUseCase.getTransactions()
 
                 _isLoadingTransactions.value = false
-            } catch (_: Exception) {
+            } catch (e: Exception) {
                 _error.value = "Failed to fetch transactions"
+                e.printStackTrace()
             }
         }
     }
@@ -80,29 +69,7 @@ class HomeViewModel(
 
         viewModelScope.launch {
             try {
-                val watchlistResponse = loginRepository.getUserInfo(
-                    userUseCase.userToken.value ?: "token"
-                )
-
-                val coinInfoResponse = coinUseCase.getCoinList()
-
-                _watchlistCoins.value = watchlistResponse
-                    .watchlist
-                    .map { el ->
-                        val coinInfo = coinInfoResponse.find {
-                            it.id == el
-                        }
-
-                        if (coinInfo == null) {
-                            return@map CoinInfo(
-                                id = el,
-                                symbol = el,
-                                name = el,
-                            )
-                        }
-
-                        coinInfo
-                    }
+                _watchlistCoins.value = userCoinUseCase.getWatchlist()
 
                 _isLoadingCoins.value = false
             } catch (_: Exception) {

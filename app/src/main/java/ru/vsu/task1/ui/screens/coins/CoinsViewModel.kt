@@ -5,10 +5,11 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import ru.vsu.task1.data.repository.coin.CoinRepository
 import ru.vsu.task1.data.repository.trade.TradeRepository
 import ru.vsu.task1.domain.models.coin.CoinInfo
+import ru.vsu.task1.domain.models.home.Transaction
 import ru.vsu.task1.domain.usecases.CoinUseCase
+import ru.vsu.task1.domain.usecases.UserCoinUseCase
 import kotlin.math.min
 
 private const val COIN_LIST_PAGE = 20

@@ -13,6 +13,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -31,10 +32,11 @@ fun TradeTopBar(
     navController: NavController,
     currency: String = "bitcoin",
     coinInfo: CoinInfo?,
+    isStarred: Boolean = false,
+    onStarClick: (Boolean) -> Unit = {},
 ) {
     val colors = MaterialTheme.colorScheme
-    var bell by remember { mutableIntStateOf(0) }
-    var star by remember { mutableIntStateOf(0) }
+    var star by remember { mutableStateOf(isStarred) }
 
     Column(modifier = modifier) {
         TopAppBar(
@@ -69,19 +71,14 @@ fun TradeTopBar(
                 }
             },
             actions = {
-                IconButton(onClick = { bell = (bell + 1) % 2 }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_bell_24),
-                        contentDescription = "Settings",
-                        tint = if (bell == 0) colors.onSurface else colors.primary
-                    )
-                }
-
-                IconButton(onClick = { star = (star + 1) % 2 }) {
+                IconButton(onClick = {
+                    star = !star
+                    onStarClick(star)
+                }) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_star_24),
                         contentDescription = "Settings",
-                        tint = if (star == 0) colors.onSurface else colors.primary
+                        tint = if (!star) colors.onSurface else colors.primary
                     )
                 }
             }
