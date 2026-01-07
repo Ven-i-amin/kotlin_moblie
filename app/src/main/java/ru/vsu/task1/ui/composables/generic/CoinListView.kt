@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import ru.vsu.task1.domain.models.coin.CoinInfo
+import ru.vsu.task1.data.models.coin.CoinInfo
 import ru.vsu.task1.ui.composables.home.CurrencyPanel
 import ru.vsu.task1.ui.theme.AppTypography
 import ru.vsu.task1.ui.theme.defaultScheme

@@ -34,6 +34,10 @@ fun formatSignificantDigit(value: Double): DecimalFormat {
         return DecimalFormat("0.00")
     }
 
+    if (value == 0.0) {
+        return DecimalFormat("0.00")
+    }
+
     val fraction = value
         .toBigDecimal()
         .toString()
@@ -42,13 +46,17 @@ fun formatSignificantDigit(value: Double): DecimalFormat {
             ""
         )
 
-    for (zeroCount in 0..fraction.length) {
+    if (fraction.isEmpty()) {
+        return DecimalFormat("0.00")
+    }
+
+    for (zeroCount in fraction.indices) {
         if (fraction[zeroCount] != '0') {
             return DecimalFormat("0.00${"0".repeat(zeroCount)}")
         }
     }
 
-    return DecimalFormat("#.#")
+    return DecimalFormat("0.00")
 }
 
 fun formatDecimal(value: Double): String {

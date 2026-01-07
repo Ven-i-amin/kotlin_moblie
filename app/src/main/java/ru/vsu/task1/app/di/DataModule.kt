@@ -3,31 +3,41 @@ package ru.vsu.task1.app.di
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-import ru.vsu.task1.data.repository.coin.CoinRepository
-import ru.vsu.task1.data.repository.coin.CoinRepositoryImpl
-import ru.vsu.task1.data.repository.home.HomeRepository
-import ru.vsu.task1.data.repository.home.HomeRepositoryImpl
-import ru.vsu.task1.data.repository.auth.AuthRepository
-import ru.vsu.task1.data.repository.auth.AuthRepositoryImpl
-import ru.vsu.task1.data.repository.portfolio.PortfolioRepository
-import ru.vsu.task1.data.repository.portfolio.PortfolioRepositoryImpl
-import ru.vsu.task1.data.repository.trade.TradeRepository
-import ru.vsu.task1.data.repository.trade.TradeRepositoryImpl
+import ru.vsu.task1.data.repositories.coininfo.CoinInfoRepository
+import ru.vsu.task1.data.repositories.coininfo.CoinInfoRepositoryImpl
+import ru.vsu.task1.data.repositories.transaction.TransactionRepository
+import ru.vsu.task1.data.repositories.transaction.TransactionRepositoryImpl
+import ru.vsu.task1.data.repositories.user.UserRepository
+import ru.vsu.task1.data.repositories.user.UserRepositoryImpl
+import ru.vsu.task1.data.repositories.coinhistory.CoinHistoryRepository
+import ru.vsu.task1.data.repositories.coinhistory.CoinHistoryRepositoryImpl
+import ru.vsu.task1.data.repositories.order.OrderRepository
+import ru.vsu.task1.data.repositories.order.OrderRepositoryImpl
+import ru.vsu.task1.data.repositories.usercoin.UserCoinRepository
+import ru.vsu.task1.data.repositories.usercoin.UserCoinRepositoryImpl
+import ru.vsu.task1.data.repositories.watchlist.WatchlistRepository
+import ru.vsu.task1.data.repositories.watchlist.WatchlistRepositoryImpl
 
 val dataModule = module {
-    singleOf(::TradeRepositoryImpl) {
-        bind<TradeRepository>()
+    singleOf(::CoinHistoryRepositoryImpl) {
+        bind<CoinHistoryRepository>()
     }
-    singleOf(::HomeRepositoryImpl) {
-        bind<HomeRepository>()
+    singleOf(::TransactionRepositoryImpl) {
+        bind<TransactionRepository>()
     }
-    singleOf(::CoinRepositoryImpl) {
-        bind<CoinRepository>()
+    singleOf(::CoinInfoRepositoryImpl) {
+        bind<CoinInfoRepository>()
     }
-    singleOf(::AuthRepositoryImpl) {
-        bind<AuthRepository>()
+    singleOf(::UserRepositoryImpl) {
+        bind<UserRepository>()
     }
-    singleOf(::PortfolioRepositoryImpl) {
-        bind<PortfolioRepository>()
+    singleOf(::UserCoinRepositoryImpl) {
+        bind<UserCoinRepository>()
+    }
+    singleOf(::OrderRepositoryImpl) {
+        bind<OrderRepository>()
+    }
+    singleOf(::WatchlistRepositoryImpl) {
+        bind<WatchlistRepository>()
     }
 }

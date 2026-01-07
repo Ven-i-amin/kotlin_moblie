@@ -36,8 +36,8 @@ import androidx.navigation.NavController
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import ru.vsu.task1.R
-import ru.vsu.task1.domain.models.coin.CoinInfo
-import ru.vsu.task1.domain.models.home.Transaction
+import ru.vsu.task1.data.models.coin.CoinInfo
+import ru.vsu.task1.data.models.home.Transaction
 import ru.vsu.task1.ui.composables.generic.CoinListView
 import ru.vsu.task1.ui.composables.generic.ErrorMessage
 import ru.vsu.task1.ui.composables.generic.Loading
@@ -292,11 +292,11 @@ private fun Watchlist(
             }
         }
 
-        Column(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            CoinListView(coins = coins, navController = navController)
-        }
+        CoinListView(
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            coins = coins,
+            navController = navController
+        )
     }
 }
 
@@ -304,7 +304,7 @@ private fun Watchlist(
 fun TransactionPanel(transaction: Map.Entry<Transaction, CoinInfo>) {
     CurrencyPanel(
         icon = transaction.value.image,
-        iconDescription = transaction.key.currencyName,
+        iconDescription = transaction.key.currencyId,
         middleColumn = {
             Column(
                 modifier = Modifier.fillMaxHeight(),

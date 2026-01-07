@@ -6,16 +6,27 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import ru.vsu.task1.data.repository.trade.TradeRepository
-import ru.vsu.task1.domain.models.coin.CoinInfo
-import ru.vsu.task1.domain.models.home.Order
-import ru.vsu.task1.domain.models.home.Transaction
-import ru.vsu.task1.domain.usecases.CoinUseCase
-import ru.vsu.task1.domain.usecases.UserCoinUseCase
+import ru.vsu.task1.data.models.coin.CoinInfo
+import ru.vsu.task1.data.models.home.Order
+import ru.vsu.task1.data.models.home.Transaction
+import ru.vsu.task1.data.repositories.coinhistory.CoinHistoryRepository
+import ru.vsu.task1.data.repositories.order.OrderRepository
+import ru.vsu.task1.data.repositories.watchlist.WatchlistRepository
+import ru.vsu.task1.data.usecases.CoinUseCase
+import ru.vsu.task1.data.usecases.TransactionUseCase
+import ru.vsu.task1.data.usecases.UserCoinUseCase
+import ru.vsu.task1.data.usecases.AuthUseCase
+import ru.vsu.task1.data.usecases.UserUseCase
+import kotlin.math.max
 
 class TradeViewModel(
-    private val repository: TradeRepository,
+    private val repository: CoinHistoryRepository,
+    private val orderRepository: OrderRepository,
+    private val watchlistRepository: WatchlistRepository,
+    private val authUseCase: AuthUseCase,
+    private val userUseCase: UserUseCase,
     private val coinUseCase: CoinUseCase,
+    private val transactionUseCase: TransactionUseCase,
     private val userCoinUseCase: UserCoinUseCase
 ) : ViewModel() {
     // coin info
@@ -30,10 +41,20 @@ class TradeViewModel(
     val transaction = _transactions.asStateFlow()
 
     private val _watchlistOn = MutableStateFlow(false)
-    val watchlistOn = _watchlistOn.asStateFlow()
+    val isChosen = _watchlistOn.asStateFlow()
 
     private val _orders = MutableStateFlow<List<Order>>(emptyList())
     val orders = _orders.asStateFlow()
+
+    private val _isTradeSheetVisible = MutableStateFlow(false)
+    val isTradeSheetVisible = _isTradeSheetVisible.asStateFlow()
+
+    private val _coinAmount = MutableStateFlow<Double>(0.0)
+    val userCoin = _coinAmount.asStateFlow()
+
+    private val _userBalance = MutableStateFlow(0.0)
+    val userBalance = _userBalance.asStateFlow()
+
 
     // loading
     private val _isLoading = MutableStateFlow(true)
@@ -47,6 +68,10 @@ class TradeViewModel(
 
     private val _loadingOrders = MutableStateFlow(true)
     val loadingOrders = _loadingOrders.asStateFlow()
+
+    private val _loadingTradeSheet = MutableStateFlow(true)
+    val loadingTradeSheet = _loadingTradeSheet.asStateFlow()
+
 
     // error
     private val _error = MutableStateFlow<String?>(null)
@@ -108,8 +133,12 @@ class TradeViewModel(
 
         viewModelScope.launch {
             try {
-                _transactions.value = userCoinUseCase.getTransactions().filter {
-                    it.key.currencyName == coinInfo.value?.id
+                val transactions = transactionUseCase.getTransactions()
+
+                if (transactions == null) throw Exception()
+
+                _transactions.value = transactions.filter {
+                    it.key.currencyId == coinInfo.value?.id
                 }
 
                 _loadingTransactions.value = false
@@ -123,8 +152,11 @@ class TradeViewModel(
     fun fetchWatchlist() {
         viewModelScope.launch {
             try {
-                _watchlistOn.value = userCoinUseCase
-                    .getWatchlist()
+                val watchList = coinUseCase.getWatchlist()
+
+                if (watchList == null) throw Exception()
+
+                _watchlistOn.value = watchList
                     .map { it.id }
                     .contains(_coinInfo.value?.id)
             } catch (e: Exception) {
@@ -139,13 +171,101 @@ class TradeViewModel(
 
         viewModelScope.launch {
             try {
-                _orders.value = userCoinUseCase.getOrder().filter {
+                if (authUseCase.userToken.value == null) {
+                    throw Exception()
+
+                }
+
+                val orders = orderRepository.getOrders(
+                    authUseCase.userToken.value!!
+                )
+
+                if (orders == null) throw Exception()
+
+
+                _orders.value = orders.filter {
                     it.currencyId == coinInfo.value?.id
                 }
 
                 _loadingOrders.value = false
             } catch (e: Exception) {
                 _error.value = "Failed to load orders"
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun showTradeScreen() {
+        _isTradeSheetVisible.value = true
+    }
+
+    fun hideTradeScreen() {
+        _isTradeSheetVisible.value = false
+    }
+
+    fun fetchUserCoins() {
+        _loadingTradeSheet.value = true
+        _error.value = null
+
+        viewModelScope.launch {
+            try {
+                val userCoins = userCoinUseCase.getUserCoins()
+
+                if (userCoins == null) throw Exception()
+
+                val response = userCoins.find {
+                    it.currencyId == coinInfo.value?.id
+                }
+
+                fetchUserBalance()
+
+                _coinAmount.value = response?.amount ?: 0.0
+
+                _loadingTradeSheet.value = false
+            } catch (e: Exception) {
+                _error.value = "Failed to load user coins"
+                e.printStackTrace()
+            }
+        }
+    }
+
+    private suspend fun fetchUserBalance() {
+        val balance = userUseCase.getUserBalance()
+
+        if (balance == null) throw Exception()
+
+        _userBalance.value = max(balance, 0.0)
+    }
+
+    fun addCoinToWatchlist(coinId: String) {
+        viewModelScope.launch {
+            try {
+                if (!authUseCase.checkUserToken()) {
+                    throw Exception()
+                }
+
+                watchlistRepository.addCoinToWatchlist(
+                    authUseCase.userToken.value!!,
+                    coinId
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun removeCoinFromWatchlist(coinId: String) {
+        viewModelScope.launch {
+            try {
+                if (!authUseCase.checkUserToken()) {
+                    throw Exception()
+                }
+
+                watchlistRepository.removeCoinFromWatchlist(
+                    authUseCase.userToken.value!!,
+                    coinId
+                )
+            } catch (e: Exception) {
                 e.printStackTrace()
             }
         }

@@ -12,9 +12,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -27,6 +24,7 @@ import ru.vsu.task1.ui.screens.auth.AuthScreen
 import ru.vsu.task1.ui.screens.coins.CoinsScreen
 import ru.vsu.task1.ui.screens.home.HomeScreen
 import ru.vsu.task1.ui.screens.portfolio.PortfolioScreen
+import ru.vsu.task1.ui.screens.profile.ProfileScreen
 import ru.vsu.task1.ui.screens.trade.TradeScreen
 import ru.vsu.task1.ui.theme.defaultScheme
 
@@ -40,7 +38,7 @@ fun MainNavigation(
 
     val topBar by appBarViewModel.topBar.collectAsState()
     val bottomBarVisible by appBarViewModel.bottomBarVisible.collectAsState()
-    val buttonPressed by appBarViewModel.pressedButton.collectAsState()
+    val pressedButton by appBarViewModel.pressedButton.collectAsState()
 
     Log.d("navigation view", bottomBarVisible.toString())
 
@@ -59,12 +57,12 @@ fun MainNavigation(
                     R.drawable.ic_home_24 to "home",
                     R.drawable.ic_portfolio_24 to "portfolio",
                     R.drawable.ic_trade_24 to "coins",
-                    R.drawable.ic_account_24 to "account"
+                    R.drawable.ic_account_24 to "profile"
                 )
 
                 icons.forEach{ iconAndEndPoint ->
                     NavigationBarItem(
-                        selected = buttonPressed == iconAndEndPoint.second,
+                        selected = pressedButton == iconAndEndPoint.second,
                         onClick = {
                             appBarViewModel.setPressedButton(iconAndEndPoint.second)
                             navController.navigate(iconAndEndPoint.second)
@@ -107,8 +105,8 @@ fun MainNavigation(
                     PortfolioScreen(navController)
                 }
 
-                composable("account") {
-
+                composable("profile") {
+                    ProfileScreen(navController = navController)
                 }
 
                 composable("trade/{coin}") { backStackEntry ->

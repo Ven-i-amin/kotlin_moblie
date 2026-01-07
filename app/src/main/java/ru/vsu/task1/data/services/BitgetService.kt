@@ -1,11 +1,10 @@
 package ru.vsu.task1.data.services
 
-import androidx.compose.ui.text.TextGranularity
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
-import ru.vsu.task1.domain.models.coin.CoinMarketInfo
-import ru.vsu.task1.domain.models.trade.CoinChart
+import ru.vsu.task1.data.models.coin.CoinMarketInfo
+import ru.vsu.task1.data.models.trade.CoinChart
 
 interface BitgetService {
     @GET("/api/v2/spot/market/tickers")

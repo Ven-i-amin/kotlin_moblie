@@ -25,8 +25,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.DrawStyle
-import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -34,7 +32,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import ru.vsu.task1.ui.theme.AppColors.DarkGreyGradient
 import ru.vsu.task1.ui.theme.AppColors.LightBlueGradient
 import ru.vsu.task1.ui.theme.AppColors.PurpleGradient
 import ru.vsu.task1.ui.theme.AppColors.PurplePinkGradient
@@ -64,8 +61,6 @@ fun PieChart(
 ) {
     val colors = MaterialTheme.colorScheme
 
-    val totalSum = data.sumOf { it.second }
-
     val sectorsAngles = mutableListOf<Pair<Float, Float>>()
     var selectedIndex by remember { mutableIntStateOf(-1) }
 
@@ -82,12 +77,17 @@ fun PieChart(
         }
     }
 
-    data.map{ it.second }.forEach { values ->
+    val sweeps = calculateSweepAngles(
+        values = data.map { it.second },
+        gapAngle = sectorsGapAngle,
+        minFraction = 0.05f
+    )
+
+    sweeps.forEach { sweepAngle ->
         val lastStartAngle = sectorsAngles.lastOrNull()?.first ?: 0f
         val lastSweepAngle = sectorsAngles.lastOrNull()?.second ?: 0f
 
         val startAngle = lastStartAngle + lastSweepAngle + sectorsGapAngle
-        val sweepAngle = 360f * values.toFloat() / totalSum.toFloat() - sectorsGapAngle
 
         sectorsAngles.add(startAngle to sweepAngle)
     }
@@ -209,6 +209,66 @@ fun findSectorInPointIndex(
     }
 
     return -1
+}
+
+private fun calculateSweepAngles(
+    values: List<Double>,
+    gapAngle: Float,
+    minFraction: Float
+): List<Float> {
+    if (values.isEmpty()) {
+        return emptyList()
+    }
+
+    val totalSum = values.sum()
+    if (totalSum <= 0.0) {
+        return List(values.size) { 0f }
+    }
+
+    val availableAngle = 360f - gapAngle * values.size
+    if (availableAngle <= 0f) {
+        return List(values.size) { 0f }
+    }
+
+    val rawSweeps = values.map { value ->
+        (availableAngle * (value / totalSum)).toFloat().coerceAtLeast(0f)
+    }
+
+    val minTarget = availableAngle * minFraction
+    val smallIndices = rawSweeps.indices.filter { rawSweeps[it] < minTarget }
+    if (smallIndices.isEmpty()) {
+        return rawSweeps
+    }
+
+    var minAngle = minTarget
+    val smallCount = smallIndices.size
+    if (minAngle * smallCount > availableAngle) {
+        minAngle = availableAngle / smallCount
+    }
+
+    val sweeps = MutableList(rawSweeps.size) { 0f }
+    smallIndices.forEach { index ->
+        sweeps[index] = minAngle
+    }
+
+    val largeIndices = rawSweeps.indices.filterNot { it in smallIndices }
+    val remainingAngle = (availableAngle - minAngle * smallCount).coerceAtLeast(0f)
+
+    if (largeIndices.isNotEmpty()) {
+        val rawLargeSum = largeIndices.sumOf { rawSweeps[it].toDouble() }.toFloat()
+        if (rawLargeSum > 0f) {
+            largeIndices.forEach { index ->
+                sweeps[index] = remainingAngle * (rawSweeps[index] / rawLargeSum)
+            }
+        } else {
+            val per = remainingAngle / largeIndices.size
+            largeIndices.forEach { index ->
+                sweeps[index] = per
+            }
+        }
+    }
+
+    return sweeps
 }
 
 private fun DrawScope.drawSector(

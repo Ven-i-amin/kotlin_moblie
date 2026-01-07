@@ -6,20 +6,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import ru.vsu.task1.data.repository.auth.AuthRepository
-import ru.vsu.task1.data.repository.home.HomeRepository
-import ru.vsu.task1.domain.models.coin.CoinInfo
-import ru.vsu.task1.domain.models.home.Transaction
-import ru.vsu.task1.domain.usecases.CoinUseCase
-import ru.vsu.task1.domain.usecases.ProfileUseCase
-import ru.vsu.task1.domain.usecases.UserCoinUseCase
+import ru.vsu.task1.data.repositories.user.UserRepository
+import ru.vsu.task1.data.models.coin.CoinInfo
+import ru.vsu.task1.data.models.home.Transaction
+import ru.vsu.task1.data.usecases.CoinUseCase
+import ru.vsu.task1.data.usecases.TransactionUseCase
+import ru.vsu.task1.data.usecases.AuthUseCase
 
 class HomeViewModel(
-    private val repository: HomeRepository,
-    private val loginRepository: AuthRepository,
-    private val userUseCase: ProfileUseCase,
+    private val loginRepository: UserRepository,
+    private val authUseCase: AuthUseCase,
+    private val transactionUseCase: TransactionUseCase,
     private val coinUseCase: CoinUseCase,
-    private val userCoinUseCase: UserCoinUseCase
 ) : ViewModel() {
     // loading
     private val _isLoadingBalance = MutableStateFlow(false)
@@ -53,7 +51,11 @@ class HomeViewModel(
 
         viewModelScope.launch {
             try {
-                _transactions.value = userCoinUseCase.getTransactions()
+                val transactions = transactionUseCase.getTransactions()
+
+                if (transactions == null) throw Exception()
+
+                _transactions.value = transactions
 
                 _isLoadingTransactions.value = false
             } catch (e: Exception) {
@@ -69,7 +71,11 @@ class HomeViewModel(
 
         viewModelScope.launch {
             try {
-                _watchlistCoins.value = userCoinUseCase.getWatchlist()
+                val watchlist = coinUseCase.getWatchlist()
+
+                if (watchlist == null) throw Exception()
+
+                _watchlistCoins.value = watchlist
 
                 _isLoadingCoins.value = false
             } catch (_: Exception) {
@@ -84,8 +90,12 @@ class HomeViewModel(
 
         viewModelScope.launch {
             try {
+                if (!authUseCase.checkUserToken()) {
+                    throw Exception()
+                }
+
                 val response = loginRepository.getUserInfo(
-                    userUseCase.userToken.value ?: "token"
+                    authUseCase.userToken.value!!
                 )
 
                 _balance.value = response.balance
@@ -93,6 +103,7 @@ class HomeViewModel(
                 _isLoadingBalance.value = false
             } catch (e: Exception) {
                 _error.value = "Failed to fetch balance"
+                e.printStackTrace()
             }
         }
     }

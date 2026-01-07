@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -21,7 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavController
 import ru.vsu.task1.R
-import ru.vsu.task1.domain.models.coin.CoinInfo
+import ru.vsu.task1.data.models.coin.CoinInfo
 import ru.vsu.task1.ui.composables.generic.SmallImage
 import ru.vsu.task1.ui.theme.AppTypography
 

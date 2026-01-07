@@ -4,9 +4,9 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
-import ru.vsu.task1.domain.models.coin.CoinInfo
-import ru.vsu.task1.domain.models.coin.CoinName
-import ru.vsu.task1.domain.models.trade.MarketChart
+import ru.vsu.task1.data.models.coin.CoinInfo
+import ru.vsu.task1.data.models.coin.CoinName
+import ru.vsu.task1.data.models.trade.MarketChart
 
 interface CoinGeckoService {
     /**

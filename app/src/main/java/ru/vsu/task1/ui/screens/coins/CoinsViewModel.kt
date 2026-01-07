@@ -5,11 +5,9 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import ru.vsu.task1.data.repository.trade.TradeRepository
-import ru.vsu.task1.domain.models.coin.CoinInfo
-import ru.vsu.task1.domain.models.home.Transaction
-import ru.vsu.task1.domain.usecases.CoinUseCase
-import ru.vsu.task1.domain.usecases.UserCoinUseCase
+import ru.vsu.task1.data.repositories.coinhistory.CoinHistoryRepository
+import ru.vsu.task1.data.models.coin.CoinInfo
+import ru.vsu.task1.data.usecases.CoinUseCase
 import kotlin.math.min
 
 private const val COIN_LIST_PAGE = 20
@@ -17,7 +15,7 @@ private const val COIN_LIST_PAGE = 20
 private const val TOP_BY_PERCENTAGE_NUM = 3
 
 class CoinsViewModel(
-    val tradeRepository: TradeRepository,
+    val coinHistoryRepository: CoinHistoryRepository,
     val coinUseCase: CoinUseCase
 ) : ViewModel() {
     private val _coins = MutableStateFlow<List<CoinInfo>>(emptyList())
@@ -107,7 +105,7 @@ class CoinsViewModel(
                             _coins.value.size
                         )
                     ).associateWith { coinChart ->
-                        tradeRepository.getMarketChart(
+                        coinHistoryRepository.getMarketChart(
                             bitgetSymbol = coinChart.bitgetSymbol,
                             granularity = "15min",
                             endTime = System.currentTimeMillis().toString(),

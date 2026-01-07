@@ -66,6 +66,8 @@ fun AuthScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
 
+    val route by appBarViewModel.pressedButton.collectAsState()
+
     val colors = MaterialTheme.colorScheme
 
     var isLogin by remember { mutableStateOf(true) }
@@ -79,9 +81,10 @@ fun AuthScreen(
     var signupConfirmPassword by remember { mutableStateOf("") }
     var signupName by remember {mutableStateOf("")}
 
+
     LaunchedEffect(authToken) {
         if (authToken.isNotBlank()) {
-            navController.navigate("home") {
+            navController.navigate(route) {
                 popUpTo("auth") { inclusive = true }
                 launchSingleTop = true
             }

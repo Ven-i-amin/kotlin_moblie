@@ -35,6 +35,8 @@ import kotlin.math.abs
 
 private const val PIE_RADIUS = 140
 
+private const val PIE_WIDTH = 30
+
 @Composable
 fun PortfolioScreen(
     navController: NavController,
@@ -88,6 +90,7 @@ fun PortfolioScreen(
                 PieChart(
                     data = coinsBalances.map { it.first to abs(it.second) },
                     pieRadius = PIE_RADIUS.dp,
+                    pieLineWidth = PIE_WIDTH.dp
                 ) { coin ->
                     selectedCoin = coin
                 }
