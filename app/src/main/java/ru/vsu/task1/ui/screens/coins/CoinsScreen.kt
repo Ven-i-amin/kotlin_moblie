@@ -20,7 +20,7 @@ import androidx.navigation.NavController
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
 import ru.vsu.task1.ui.composables.coins.TopCurrencyPanel
-import ru.vsu.task1.ui.composables.generic.CoinList
+import ru.vsu.task1.ui.composables.generic.CoinListView
 import ru.vsu.task1.ui.composables.generic.ErrorMessage
 import ru.vsu.task1.ui.composables.generic.Loading
 import ru.vsu.task1.ui.composables.generic.LoadingView
@@ -109,8 +109,9 @@ fun CoinsScreen(
                     style = MaterialTheme.typography.titleLarge
                 )
 
-                CoinList(
-                    modifier = Modifier.weight(1f),
+
+                CoinListView(
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                     coins = coinsSubList,
                     navController = navController
                 )

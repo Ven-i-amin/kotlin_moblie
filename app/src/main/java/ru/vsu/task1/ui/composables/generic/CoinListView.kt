@@ -17,65 +17,73 @@ import java.util.Locale
 import kotlin.math.abs
 
 @Composable
-fun CoinList(
+fun CoinListView(
     modifier: Modifier = Modifier,
+    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     coins: List<CoinInfo>,
     navController: NavController
 ) {
-    for (coin in coins) {
-        CurrencyPanel(
-            modifier = Modifier.clickable(
-                onClick = { navController.navigate("trade/${coin.id}") }
-            ),
-            icon = coin.image,
-            iconDescription = coin.name,
-            middleColumn = {
-                Column(
-                    modifier = Modifier.fillMaxHeight(),
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = coin.name,
-                        style = AppTypography.bodyMedium
-                    )
+    Column(
+        modifier = modifier,
+        verticalArrangement = verticalArrangement,
+        horizontalAlignment = horizontalAlignment
+    ) {
+        for (coin in coins) {
+            CurrencyPanel(
+                modifier = Modifier.clickable(
+                    onClick = { navController.navigate("trade/${coin.id}") }
+                ),
+                icon = coin.image,
+                iconDescription = coin.name,
+                middleColumn = {
+                    Column(
+                        modifier = Modifier.fillMaxHeight(),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = coin.name,
+                            style = AppTypography.bodyMedium
+                        )
 
-                    Text(
-                        text = coin.symbol.uppercase(),
-                        style = AppTypography.bodyMedium,
-                        color = defaultScheme.onSecondary
-                    )
+                        Text(
+                            text = coin.symbol.uppercase(),
+                            style = AppTypography.bodyMedium,
+                            color = defaultScheme.onSecondary
+                        )
+                    }
+                },
+                rightColumn = {
+                    Column(
+                        modifier = Modifier.fillMaxHeight(),
+                        horizontalAlignment = Alignment.End,
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        val priceText = coin.currentPrice?.let { price ->
+                            String.format(Locale.US, "$%.2f", price)
+                        } ?: "Not available"
+
+                        Text(
+                            text = priceText,
+                            style = AppTypography.bodyMedium,
+                        )
+
+                        val percentageChange = coin.priceChangePercentage24h ?: 0.0
+
+                        Text(
+                            text = String.format(
+                                Locale.US,
+                                "%s%.2f%%",
+                                if (percentageChange >= 0) "+" else "-",
+                                abs(percentageChange)
+                            ),
+                            style = AppTypography.bodySmall,
+                            color = defaultScheme.primary
+                        )
+                    }
                 }
-            },
-            rightColumn = {
-                Column(
-                    modifier = Modifier.fillMaxHeight(),
-                    horizontalAlignment = Alignment.End,
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    val priceText = coin.currentPrice?.let { price ->
-                        String.format(Locale.US, "$%.2f", price)
-                    } ?: "Not available"
-
-                    Text(
-                        text = priceText,
-                        style = AppTypography.bodyMedium,
-                    )
-
-                    val percentageChange = coin.priceChangePercentage24h ?: 0.0
-
-                    Text(
-                        text = String.format(
-                            Locale.US,
-                            "%s%.2f%%",
-                            if (percentageChange >= 0) "+" else "-",
-                            abs(percentageChange)
-                        ),
-                        style = AppTypography.bodySmall,
-                        color = defaultScheme.primary
-                    )
-                }
-            }
-        )
+            )
+        }
     }
 }
 

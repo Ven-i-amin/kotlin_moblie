@@ -26,6 +26,7 @@ import ru.vsu.task1.R
 import ru.vsu.task1.ui.screens.auth.AuthScreen
 import ru.vsu.task1.ui.screens.coins.CoinsScreen
 import ru.vsu.task1.ui.screens.home.HomeScreen
+import ru.vsu.task1.ui.screens.portfolio.PortfolioScreen
 import ru.vsu.task1.ui.screens.trade.TradeScreen
 import ru.vsu.task1.ui.theme.defaultScheme
 
@@ -100,6 +101,14 @@ fun MainNavigation(
 
                 composable("coins") {
                     CoinsScreen(navController)
+                }
+
+                composable("portfolio") {
+                    PortfolioScreen(navController)
+                }
+
+                composable("account") {
+
                 }
 
                 composable("trade/{coin}") { backStackEntry ->

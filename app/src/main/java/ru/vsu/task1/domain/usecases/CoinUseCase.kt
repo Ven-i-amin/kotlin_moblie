@@ -29,7 +29,9 @@ class CoinUseCase(val repository: CoinRepository, val profileUseCase: ProfileUse
             return null
         }
 
-        return repository.getMarketCoinInfo(coinInfo)
+        val a = repository.getMarketCoinInfo(coinInfo)
+
+        return a
     }
 
     suspend fun getCoinList(): List<CoinInfo> {

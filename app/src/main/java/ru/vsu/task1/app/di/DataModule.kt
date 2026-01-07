@@ -9,6 +9,8 @@ import ru.vsu.task1.data.repository.home.HomeRepository
 import ru.vsu.task1.data.repository.home.HomeRepositoryImpl
 import ru.vsu.task1.data.repository.auth.AuthRepository
 import ru.vsu.task1.data.repository.auth.AuthRepositoryImpl
+import ru.vsu.task1.data.repository.portfolio.PortfolioRepository
+import ru.vsu.task1.data.repository.portfolio.PortfolioRepositoryImpl
 import ru.vsu.task1.data.repository.trade.TradeRepository
 import ru.vsu.task1.data.repository.trade.TradeRepositoryImpl
 
@@ -24,5 +26,8 @@ val dataModule = module {
     }
     singleOf(::AuthRepositoryImpl) {
         bind<AuthRepository>()
+    }
+    singleOf(::PortfolioRepositoryImpl) {
+        bind<PortfolioRepository>()
     }
 }

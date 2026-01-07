@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -36,13 +35,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import org.koin.androidx.compose.koinViewModel
 import org.koin.compose.koinInject
-import org.threeten.bp.Instant
-import org.threeten.bp.ZoneId
-import org.threeten.bp.format.DateTimeFormatter
 import ru.vsu.task1.R
 import ru.vsu.task1.domain.models.coin.CoinInfo
 import ru.vsu.task1.domain.models.home.Transaction
-import ru.vsu.task1.ui.composables.generic.CoinList
+import ru.vsu.task1.ui.composables.generic.CoinListView
 import ru.vsu.task1.ui.composables.generic.ErrorMessage
 import ru.vsu.task1.ui.composables.generic.Loading
 import ru.vsu.task1.ui.composables.generic.LoadingView
@@ -51,8 +47,6 @@ import ru.vsu.task1.ui.composables.home.CurrencyPanel
 import ru.vsu.task1.ui.navigation.AppBarViewModel
 import ru.vsu.task1.ui.theme.AppTypography
 import ru.vsu.task1.ui.theme.defaultScheme
-import ru.vsu.task1.utils.formatPercentage
-import ru.vsu.task1.utils.formatPrice
 import ru.vsu.task1.utils.formatTimestamp
 import java.util.Locale
 import kotlin.math.abs
@@ -301,7 +295,7 @@ private fun Watchlist(
         Column(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            CoinList(modifier =  Modifier, coins = coins, navController = navController)
+            CoinListView(coins = coins, navController = navController)
         }
     }
 }

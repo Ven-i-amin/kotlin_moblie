@@ -42,12 +42,13 @@ fun formatSignificantDigit(value: Double): DecimalFormat {
             ""
         )
 
-    var zeroCount = 0
-    while (fraction[zeroCount] == '0') {
-        zeroCount++
+    for (zeroCount in 0..fraction.length) {
+        if (fraction[zeroCount] != '0') {
+            return DecimalFormat("0.00${"0".repeat(zeroCount)}")
+        }
     }
 
-    return DecimalFormat("0.00${"0".repeat(zeroCount)}")
+    return DecimalFormat("#.#")
 }
 
 fun formatDecimal(value: Double): String {

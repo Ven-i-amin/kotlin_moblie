@@ -38,11 +38,9 @@ import ru.vsu.task1.ui.composables.generic.RadioButton
 import ru.vsu.task1.ui.composables.generic.RadioButtonRow
 import ru.vsu.task1.ui.composables.generic.topbar.TradeTopBar
 import ru.vsu.task1.ui.composables.trade.CurrencyChart
+import ru.vsu.task1.ui.composables.trade.ValueAndChangeColumn
 import ru.vsu.task1.ui.navigation.AppBarViewModel
 import ru.vsu.task1.ui.theme.AppTypography
-import ru.vsu.task1.utils.formatPercentage
-import ru.vsu.task1.utils.formatPrice
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -120,25 +118,13 @@ private fun MainContent(
             .padding(horizontal = 24.dp)
             .fillMaxHeight()
     ) {
-        Column(
-            Modifier.padding(vertical = 24.dp)
-        ) {
-            Text(
-                text = formatPrice(coinInfo?.currentPrice),
-                style = AppTypography.displayLarge
-            )
-            Row {
-                Text(
-                    text = formatPercentage(coinInfo?.priceChangePercentage24h),
-                    color = colors.primary,
-                    style = AppTypography.bodyMedium
-                )
-                Text(
-                    "Today", style =
-                        AppTypography.bodyMedium
-                )
-            }
-        }
+        ValueAndChangeColumn(
+            modifier = Modifier.padding(vertical = 24.dp),
+            value = coinInfo?.currentPrice,
+            change = coinInfo?.priceChange24h,
+            percentageChange = coinInfo?.priceChangePercentage24h,
+            overall = "Today"
+        )
 
         val buttonList = mapOf(
             "Overview" to "chart",

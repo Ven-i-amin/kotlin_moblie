@@ -19,7 +19,7 @@ val AppTypography = Typography(
     // Заголовки
     displayLarge = TextStyle(
         fontFamily = ClashGrotesk,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.Normal,
         fontSize = 34.sp,
         lineHeight = (34 * 1.5).sp, // 150%
         letterSpacing = 0.sp
