@@ -27,7 +27,7 @@ import ru.vsu.task1.ui.composables.generic.CoinListView
 import ru.vsu.task1.ui.composables.generic.ErrorMessage
 import ru.vsu.task1.ui.composables.generic.Loading
 import ru.vsu.task1.ui.composables.generic.LoadingView
-import ru.vsu.task1.ui.composables.generic.topbar.DefaultTopBar
+import ru.vsu.task1.ui.composables.generic.DefaultTopBar
 import ru.vsu.task1.ui.composables.portfolio.PieChart
 import ru.vsu.task1.ui.composables.trade.ValueAndChangeColumn
 import ru.vsu.task1.ui.navigation.AppBarViewModel
@@ -58,8 +58,7 @@ fun PortfolioScreen(
         appBarViewModel.setTopBar {
             DefaultTopBar(
                 modifier = Modifier,
-                title = "Porfolio",
-                onClickOnHamburger = {}
+                title = "Porfolio"
             )
         }
         appBarViewModel.showBottomBar()

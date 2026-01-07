@@ -32,7 +32,7 @@ import org.koin.compose.koinInject
 import ru.vsu.task1.ui.composables.generic.ErrorMessage
 import ru.vsu.task1.ui.composables.generic.Loading
 import ru.vsu.task1.ui.composables.generic.LoadingView
-import ru.vsu.task1.ui.composables.generic.topbar.DefaultTopBar
+import ru.vsu.task1.ui.composables.generic.DefaultTopBar
 import ru.vsu.task1.ui.navigation.AppBarViewModel
 import ru.vsu.task1.ui.theme.AppTypography
 
@@ -47,8 +47,7 @@ fun ProfileScreen(
         appBarViewModel.setTopBar {
             DefaultTopBar(
                 modifier = Modifier,
-                title = "Profile",
-                onClickOnHamburger = {}
+                title = "Profile"
             )
         }
         appBarViewModel.showBottomBar()

@@ -1,4 +1,4 @@
-package ru.vsu.task1.ui.composables.generic.topbar
+package ru.vsu.task1.ui.composables.trade
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,11 +31,10 @@ fun TradeTopBar(
     navController: NavController,
     currency: String = "bitcoin",
     coinInfo: CoinInfo?,
-    isStarred: Boolean = false,
-    onStarClick: (Boolean) -> Unit = {},
+    isInWishlist: Boolean,
+    onStarClick: () -> Unit = {},
 ) {
     val colors = MaterialTheme.colorScheme
-    var star by remember { mutableStateOf(isStarred) }
 
     Column(modifier = modifier) {
         TopAppBar(
@@ -71,13 +70,12 @@ fun TradeTopBar(
             },
             actions = {
                 IconButton(onClick = {
-                    star = !star
-                    onStarClick(star)
+                    onStarClick()
                 }) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_star_24),
                         contentDescription = "Settings",
-                        tint = if (!star) colors.onSurface else colors.primary
+                        tint = if (!isInWishlist) colors.onSurface else colors.primary
                     )
                 }
             }

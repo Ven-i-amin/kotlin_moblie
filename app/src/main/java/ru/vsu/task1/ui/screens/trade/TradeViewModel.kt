@@ -40,8 +40,8 @@ class TradeViewModel(
     private val _transactions = MutableStateFlow<Map<Transaction, CoinInfo>>(emptyMap())
     val transaction = _transactions.asStateFlow()
 
-    private val _watchlistOn = MutableStateFlow(false)
-    val isChosen = _watchlistOn.asStateFlow()
+    private val _isChosen = MutableStateFlow(false)
+    val isChosen = _isChosen.asStateFlow()
 
     private val _orders = MutableStateFlow<List<Order>>(emptyList())
     val orders = _orders.asStateFlow()
@@ -149,6 +149,10 @@ class TradeViewModel(
         }
     }
 
+    fun reverseWatchlist() {
+        _isChosen.value = !_isChosen.value
+    }
+
     fun fetchWatchlist() {
         viewModelScope.launch {
             try {
@@ -156,7 +160,7 @@ class TradeViewModel(
 
                 if (watchList == null) throw Exception()
 
-                _watchlistOn.value = watchList
+                _isChosen.value = watchList
                     .map { it.id }
                     .contains(_coinInfo.value?.id)
             } catch (e: Exception) {
@@ -195,11 +199,11 @@ class TradeViewModel(
         }
     }
 
-    fun showTradeScreen() {
+    fun showTradeSheet() {
         _isTradeSheetVisible.value = true
     }
 
-    fun hideTradeScreen() {
+    fun hideTradeSheet() {
         _isTradeSheetVisible.value = false
     }
 
@@ -235,6 +239,32 @@ class TradeViewModel(
         if (balance == null) throw Exception()
 
         _userBalance.value = max(balance, 0.0)
+    }
+
+    fun addNewOrder(
+        type: String,
+        price: Double,
+        amount: Double
+    ) {
+        viewModelScope.launch {
+            try {
+                orderRepository.addOrder(
+                    authUseCase.userToken.value!!,
+                    Order (
+                        id = 0L,
+                        currencyId = coinInfo.value?.id!!,
+                        currencyName = coinInfo.value?.name ?: "",
+                        type = type,
+                        amount = amount,
+                        price = price,
+                        status = "start"
+                    )
+                )
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     fun addCoinToWatchlist(coinId: String) {

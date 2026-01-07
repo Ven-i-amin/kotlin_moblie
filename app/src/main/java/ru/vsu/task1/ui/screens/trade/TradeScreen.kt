@@ -50,11 +50,11 @@ import ru.vsu.task1.data.models.home.Order
 import ru.vsu.task1.ui.composables.generic.ErrorMessage
 import ru.vsu.task1.ui.composables.generic.Loading
 import ru.vsu.task1.ui.composables.generic.LoadingView
-import ru.vsu.task1.ui.composables.generic.RadioButton
-import ru.vsu.task1.ui.composables.generic.RadioButtonRow
-import ru.vsu.task1.ui.composables.generic.topbar.TradeTopBar
+import ru.vsu.task1.ui.composables.trade.TradeTopBar
 import ru.vsu.task1.ui.composables.home.CurrencyPanel
 import ru.vsu.task1.ui.composables.trade.CurrencyChart
+import ru.vsu.task1.ui.composables.trade.RadioButton
+import ru.vsu.task1.ui.composables.trade.RadioButtonRow
 import ru.vsu.task1.ui.composables.trade.ValueAndChangeColumn
 import ru.vsu.task1.ui.navigation.AppBarViewModel
 import ru.vsu.task1.ui.screens.home.TransactionPanel
@@ -78,19 +78,21 @@ fun TradeScreen(
         viewModel.fetchWatchlist()
     }
 
-    LaunchedEffect(isChosen) {
+    LaunchedEffect(coinInfo) {
         appBarViewModel.setTopBar {
             TradeTopBar(
                 modifier = Modifier,
                 navController = navController,
                 coinInfo = coinInfo,
-                isStarred = isChosen,
-                onStarClick = { isChosen ->
+                isInWishlist = isChosen,
+                onStarClick = {
                     if (isChosen) {
-                        viewModel.addCoinToWatchlist(currency)
-                    } else {
                         viewModel.removeCoinFromWatchlist(currency)
+                    } else {
+                        viewModel.addCoinToWatchlist(currency)
                     }
+
+                    viewModel.reverseWatchlist()
                 }
             )
         }
@@ -195,13 +197,14 @@ private fun MainContent(
                     error = error,
                     onPeriodSelected = onPeriodSelected
                 )
+
                 "transaction" -> TransactionContent()
                 "orders" -> OrderContent()
             }
         }
 
         Button(
-            onClick = { viewModel.showTradeScreen() },
+            onClick = { viewModel.showTradeSheet() },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp)
@@ -214,7 +217,7 @@ private fun MainContent(
 
         if (isTradeSheetVisible) {
             TradeSheet(
-                onDismissRequest = { viewModel.hideTradeScreen() }
+                onDismissRequest = { viewModel.hideTradeSheet() }
             )
         }
     }
@@ -536,12 +539,6 @@ private fun TradeSheet(
                     .padding(horizontal = 24.dp, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = "Сделка",
-                    style = AppTypography.bodyLarge,
-                    color = colors.onSurface
-                )
-
                 TradeToggle(
                     selectedSide = tradeSide,
                     onSelected = { tradeSide = it }
@@ -592,7 +589,15 @@ private fun TradeSheet(
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Button(
-                    onClick = {},
+                    onClick = {
+                        viewModel.addNewOrder(
+                            type = if (tradeSide == TradeSide.Buy) "buy" else "sell",
+                            price = fiatInput.toDoubleOrNull() ?: 0.0,
+                            amount = cryptoInput.toDoubleOrNull() ?: 0.0
+                        )
+
+                        viewModel.hideTradeSheet()
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(52.dp)

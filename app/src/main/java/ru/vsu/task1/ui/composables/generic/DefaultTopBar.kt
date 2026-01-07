@@ -1,4 +1,4 @@
-package ru.vsu.task1.ui.composables.generic.topbar
+package ru.vsu.task1.ui.composables.generic
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,8 +22,7 @@ import ru.vsu.task1.ui.theme.defaultScheme
 @Composable
 fun DefaultTopBar(
     modifier: Modifier = Modifier,
-    title: String = "",
-    onClickOnHamburger: () -> Unit
+    title: String = ""
 ) {
     Column(
         modifier = modifier
@@ -43,14 +42,14 @@ fun DefaultTopBar(
                 }
             },
             navigationIcon = {
-                IconButton(
-                    onClick = onClickOnHamburger
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_hamburger_24),
-                        contentDescription = "Back"
-                    )
-                }
+//                IconButton(
+//                    onClick = onClickOnHamburger
+//                ) {
+//                    Icon(
+//                        painter = painterResource(id = R.drawable.ic_hamburger_24),
+//                        contentDescription = "Back"
+//                    )
+//                }
             },
             actions = {
                 Box(modifier = Modifier.fillMaxWidth(0.1f))

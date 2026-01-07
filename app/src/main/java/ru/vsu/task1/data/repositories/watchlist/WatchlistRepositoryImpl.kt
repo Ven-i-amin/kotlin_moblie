@@ -1,7 +1,7 @@
 package ru.vsu.task1.data.repositories.watchlist
 
 class WatchlistRepositoryImpl : WatchlistRepository {
-    val watchlist = mutableListOf<String>()
+    val watchlist = mutableListOf("bitcoin", "ethereum", "solana")
 
     override suspend fun getWatchlist(authToken: String): List<String> {
         return watchlist

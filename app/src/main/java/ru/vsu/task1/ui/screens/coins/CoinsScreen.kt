@@ -26,7 +26,7 @@ import ru.vsu.task1.ui.composables.generic.Loading
 import ru.vsu.task1.ui.composables.generic.LoadingView
 import ru.vsu.task1.ui.composables.generic.loadContentWhenListEnding
 import ru.vsu.task1.ui.composables.generic.simpleVerticalScrollbar
-import ru.vsu.task1.ui.composables.generic.topbar.DefaultTopBar
+import ru.vsu.task1.ui.composables.generic.DefaultTopBar
 import ru.vsu.task1.ui.navigation.AppBarViewModel
 
 @Composable
@@ -36,7 +36,7 @@ fun CoinsScreen(
     appBarViewModel: AppBarViewModel = koinInject(),
 ) {
     LaunchedEffect(Unit) {
-        appBarViewModel.setTopBar { DefaultTopBar(title = "Coins") { } }
+        appBarViewModel.setTopBar { DefaultTopBar(title = "Coins")}
         appBarViewModel.showBottomBar()
 
         viewModel.fetchCoins()
@@ -116,14 +116,6 @@ fun CoinsScreen(
                     navController = navController
                 )
             }
-
-
-//            Button(onClick = { listSize += 20 }) {
-//                Text(
-//                    text = "add coins",
-//                    style = MaterialTheme.typography.bodyMedium
-//                )
-//            }
         }
     }
 }

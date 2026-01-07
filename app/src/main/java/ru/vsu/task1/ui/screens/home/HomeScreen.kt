@@ -42,7 +42,7 @@ import ru.vsu.task1.ui.composables.generic.CoinListView
 import ru.vsu.task1.ui.composables.generic.ErrorMessage
 import ru.vsu.task1.ui.composables.generic.Loading
 import ru.vsu.task1.ui.composables.generic.LoadingView
-import ru.vsu.task1.ui.composables.generic.topbar.DefaultTopBar
+import ru.vsu.task1.ui.composables.generic.DefaultTopBar
 import ru.vsu.task1.ui.composables.home.CurrencyPanel
 import ru.vsu.task1.ui.navigation.AppBarViewModel
 import ru.vsu.task1.ui.theme.AppTypography
@@ -59,7 +59,7 @@ fun HomeScreen(
     appBarViewModel: AppBarViewModel = koinInject()
 ) {
     LaunchedEffect(Unit) {
-        appBarViewModel.setTopBar { DefaultTopBar(title = "Home") { /*TODO*/ } }
+        appBarViewModel.setTopBar { DefaultTopBar(title = "Home")}
         appBarViewModel.showBottomBar()
 
         viewModel.fetchBalance()

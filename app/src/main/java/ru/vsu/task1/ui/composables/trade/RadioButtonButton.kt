@@ -1,4 +1,4 @@
-package ru.vsu.task1.ui.composables.generic
+package ru.vsu.task1.ui.composables.trade
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
