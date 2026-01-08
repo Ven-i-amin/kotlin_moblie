@@ -2,7 +2,6 @@ package ru.vsu.task1.data.usecases
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import ru.vsu.task1.data.repositories.user.UserRepository
 
 class AuthUseCase() {
     private val _userToken = MutableStateFlow<String?>(null)

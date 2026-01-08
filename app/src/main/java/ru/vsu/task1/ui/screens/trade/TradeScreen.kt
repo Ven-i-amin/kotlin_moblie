@@ -58,7 +58,6 @@ import ru.vsu.task1.ui.composables.trade.RadioButtonRow
 import ru.vsu.task1.ui.composables.trade.ValueAndChangeColumn
 import ru.vsu.task1.ui.navigation.AppBarViewModel
 import ru.vsu.task1.ui.screens.home.TransactionPanel
-import ru.vsu.task1.ui.theme.AppTypography
 import ru.vsu.task1.utils.formatDecimal
 import ru.vsu.task1.utils.formatPrice
 
@@ -67,6 +66,7 @@ import ru.vsu.task1.utils.formatPrice
 fun TradeScreen(
     navController: NavController,
     currency: String = "bitcoin",
+    tradeSheetState: String?,
     viewModel: TradeViewModel = koinViewModel(),
     appBarViewModel: AppBarViewModel = koinInject()
 ) {
@@ -76,6 +76,15 @@ fun TradeScreen(
     LaunchedEffect(Unit) {
         viewModel.fetchCoinInfo(currency)
         viewModel.fetchWatchlist()
+
+        if (tradeSheetState != null) {
+            val tradeSide = TradeSide.entries.firstOrNull {
+                it.value == tradeSheetState
+            } ?: return@LaunchedEffect
+
+            viewModel.selectTradeSide(tradeSide)
+            viewModel.showTradeSheet()
+        }
     }
 
     LaunchedEffect(coinInfo) {
@@ -130,6 +139,7 @@ private fun MainContent(
     onPeriodSelected: (String) -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
 
     val coinInfo by viewModel.coinInfo.collectAsState()
     val prices by viewModel.prices.collectAsState()
@@ -180,7 +190,7 @@ private fun MainContent(
                                 modifier = Modifier
                                     .padding(10.dp),
                                 text = it.key,
-                                style = AppTypography.bodySmall
+                                style = typography.bodySmall
                             )
                         }
                     },
@@ -211,7 +221,7 @@ private fun MainContent(
         ) {
             Text(
                 text = "Trade",
-                style = AppTypography.bodyMedium
+                style = typography.bodyMedium
             )
         }
 
@@ -231,6 +241,8 @@ private fun ChartContent(
     onPeriodSelected: (String) -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
     var selectedDay by remember { mutableStateOf("3min") }
 
     LaunchedEffect(selectedDay) {
@@ -291,7 +303,7 @@ private fun ChartContent(
 
                     Text(
                         text = dayStr,
-                        style = AppTypography.bodySmall,
+                        style = typography.bodySmall,
                         color = if (selected) colors.onPrimary else colors.onSurface
                     )
                 }
@@ -346,41 +358,86 @@ private fun TransactionContent(
 
 @Composable
 private fun OrderPanel(order: Pair<Order, CoinInfo?>) {
+    val colors = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
+    val orderInfo = order.first
+    val isBuy = orderInfo.type.equals("buy", ignoreCase = true)
+    val sideLabel = if (isBuy) "Buy" else "Sell"
+    val sideColor = if (isBuy) colors.primary else colors.error
+    val statusLabel = orderInfo.status.replaceFirstChar { ch ->
+        if (ch.isLowerCase()) ch.titlecase() else ch.toString()
+    }
 
     CurrencyPanel(
         icon = order.second?.image,
-        iconDescription = order.first.currencyName,
+        iconDescription = orderInfo.currencyName,
         middleColumn = {
             Column(
                 modifier = Modifier.fillMaxHeight(),
-                verticalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text(
-                    text = order.first.type,
-                    style = typography.bodyMedium
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = "Price",
+                        style = typography.bodyMedium,
+                        color = colors.onSurface.copy(alpha = 0.7f)
+                    )
+                    Text(
+                        text = formatPrice(orderInfo.price),
+                        style = typography.bodyMedium
+                    )
+                }
 
-                Text(
-                    text = formatPrice(order.first.price),
-                    style = typography.bodyMedium
-                )
-
-                Text(
-                    text = formatDecimal(order.first.amount),
-                    style = typography.bodyMedium
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = "Amount",
+                        style = typography.bodyMedium,
+                        color = colors.onSurface.copy(alpha = 0.7f)
+                    )
+                    Text(
+                        text = formatDecimal(orderInfo.amount),
+                        style = typography.bodyMedium
+                    )
+                }
             }
         },
         rightColumn = {
             Column(
                 modifier = Modifier.fillMaxHeight(),
-                verticalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.SpaceBetween,
+                horizontalAlignment = Alignment.End
             ) {
-                Text(
-                    text = order.first.status,
-                    style = typography.bodyMedium,
-                )
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(sideColor.copy(alpha = 0.15f))
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = sideLabel,
+                        style = typography.bodyMedium,
+                        color = sideColor
+                    )
+                }
+
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(colors.surface.copy(alpha = 0.7f))
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                ) {
+                    Text(
+                        text = statusLabel,
+                        style = typography.bodyMedium,
+                        color = colors.onSurface
+                    )
+                }
             }
         }
     )
@@ -438,12 +495,15 @@ private fun TradeSheet(
     onDismissRequest: () -> Unit = {}
 ) {
     val colors = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
     val coinInfo by viewModel.coinInfo.collectAsState()
     val loadingTradeSheet by viewModel.loadingTradeSheet.collectAsState()
     val error by viewModel.error.collectAsState()
 
     val coinAmount by viewModel.userCoin.collectAsState()
     val balance by viewModel.userBalance.collectAsState()
+    val tradeSide by viewModel.tradeSide.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.fetchUserCoins()
@@ -456,7 +516,6 @@ private fun TradeSheet(
         skipPartiallyExpanded = true
     )
 
-    var tradeSide by remember { mutableStateOf(TradeSide.Buy) }
     var cryptoInput by remember { mutableStateOf("") }
     var fiatInput by remember { mutableStateOf("") }
     var lastEdited by remember { mutableStateOf(InputField.Crypto) }
@@ -541,7 +600,7 @@ private fun TradeSheet(
             ) {
                 TradeToggle(
                     selectedSide = tradeSide,
-                    onSelected = { tradeSide = it }
+                    onSelected = { viewModel.selectTradeSide(it) }
                 )
 
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -557,7 +616,7 @@ private fun TradeSheet(
                     )
                     Text(
                         text = "Available ${formatDecimal(coinAmount)} $symbol",
-                        style = AppTypography.labelSmall,
+                        style = typography.labelSmall,
                         color = colors.onSurface.copy(alpha = 0.7f)
                     )
 
@@ -573,7 +632,7 @@ private fun TradeSheet(
                     )
                     Text(
                         text = "Available ${formatPrice(fiatBalance)}",
-                        style = AppTypography.labelSmall,
+                        style = typography.labelSmall,
                         color = colors.onSurface.copy(alpha = 0.7f)
                     )
                 }
@@ -581,7 +640,7 @@ private fun TradeSheet(
                 if (price > 0.0) {
                     Text(
                         text = "1 $symbol = ${formatPrice(price)}",
-                        style = AppTypography.labelSmall,
+                        style = typography.labelSmall,
                         color = colors.onSurface.copy(alpha = 0.7f)
                     )
                 }
@@ -604,7 +663,7 @@ private fun TradeSheet(
                 ) {
                     Text(
                         text = if (tradeSide == TradeSide.Buy) "Buy" else "Sell",
-                        style = AppTypography.bodyMedium
+                        style = typography.bodyMedium
                     )
                 }
             }
@@ -673,6 +732,7 @@ private fun TradeToggleButton(
     onClick: () -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
 
     Box(
         modifier = modifier
@@ -683,16 +743,12 @@ private fun TradeToggleButton(
     ) {
         Text(
             text = text,
-            style = AppTypography.bodySmall,
+            style = typography.bodySmall,
             color = if (selected) colors.onPrimary else colors.onSurface
         )
     }
 }
 
-private enum class TradeSide {
-    Buy,
-    Sell
-}
 
 private enum class InputField {
     Crypto,
@@ -713,3 +769,5 @@ private fun normalizeNumberInput(value: String): String {
         }
     }
 }
+
+

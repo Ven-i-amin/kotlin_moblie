@@ -1,6 +1,5 @@
 package ru.vsu.task1.app.di
 
-import android.provider.ContactsContract.Profile
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import ru.vsu.task1.ui.navigation.AppBarViewModel

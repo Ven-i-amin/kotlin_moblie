@@ -49,11 +49,14 @@ class TradeViewModel(
     private val _isTradeSheetVisible = MutableStateFlow(false)
     val isTradeSheetVisible = _isTradeSheetVisible.asStateFlow()
 
-    private val _coinAmount = MutableStateFlow<Double>(0.0)
+    private val _coinAmount = MutableStateFlow(0.0)
     val userCoin = _coinAmount.asStateFlow()
 
     private val _userBalance = MutableStateFlow(0.0)
     val userBalance = _userBalance.asStateFlow()
+
+    private val _tradeSide = MutableStateFlow(TradeSide.Buy)
+    val tradeSide = _tradeSide.asStateFlow()
 
 
     // loading
@@ -78,7 +81,6 @@ class TradeViewModel(
     val error: StateFlow<String?> = _error.asStateFlow()
 
     private val _chartError = MutableStateFlow<String?>(null)
-    val chartError: StateFlow<String?> = _chartError.asStateFlow()
 
 
     fun fetchMarketChart(bitgetSymbol: String, timeGaps: String) {
@@ -184,9 +186,6 @@ class TradeViewModel(
                     authUseCase.userToken.value!!
                 )
 
-                if (orders == null) throw Exception()
-
-
                 _orders.value = orders.filter {
                     it.currencyId == coinInfo.value?.id
                 }
@@ -197,6 +196,10 @@ class TradeViewModel(
                 e.printStackTrace()
             }
         }
+    }
+
+    fun selectTradeSide(side: TradeSide) {
+        _tradeSide.value = side
     }
 
     fun showTradeSheet() {
@@ -301,3 +304,9 @@ class TradeViewModel(
         }
     }
 }
+
+enum class TradeSide(val value: String) {
+    Buy("buy"),
+    Sell("sell")
+}
+

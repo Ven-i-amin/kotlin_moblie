@@ -50,6 +50,8 @@ private val gradients = listOf(
 
 private const val INNER_CLICKABLE_BORDER_RATIO = 2
 
+private const val MIN_FRACTION = 0.05f
+
 @Composable
 fun PieChart(
     data: List<Pair<String, Double>>,
@@ -79,8 +81,7 @@ fun PieChart(
 
     val sweeps = calculateSweepAngles(
         values = data.map { it.second },
-        gapAngle = sectorsGapAngle,
-        minFraction = 0.05f
+        gapAngle = sectorsGapAngle
     )
 
     sweeps.forEach { sweepAngle ->
@@ -213,8 +214,7 @@ fun findSectorInPointIndex(
 
 private fun calculateSweepAngles(
     values: List<Double>,
-    gapAngle: Float,
-    minFraction: Float
+    gapAngle: Float
 ): List<Float> {
     if (values.isEmpty()) {
         return emptyList()
@@ -234,7 +234,7 @@ private fun calculateSweepAngles(
         (availableAngle * (value / totalSum)).toFloat().coerceAtLeast(0f)
     }
 
-    val minTarget = availableAngle * minFraction
+    val minTarget = availableAngle * MIN_FRACTION
     val smallIndices = rawSweeps.indices.filter { rawSweeps[it] < minTarget }
     if (smallIndices.isEmpty()) {
         return rawSweeps

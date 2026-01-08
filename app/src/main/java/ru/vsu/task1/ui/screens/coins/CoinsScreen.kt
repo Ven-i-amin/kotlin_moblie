@@ -24,13 +24,14 @@ import ru.vsu.task1.ui.composables.generic.CoinListView
 import ru.vsu.task1.ui.composables.generic.ErrorMessage
 import ru.vsu.task1.ui.composables.generic.Loading
 import ru.vsu.task1.ui.composables.generic.LoadingView
+import ru.vsu.task1.ui.composables.generic.DefaultTopBar
 import ru.vsu.task1.ui.composables.generic.loadContentWhenListEnding
 import ru.vsu.task1.ui.composables.generic.simpleVerticalScrollbar
-import ru.vsu.task1.ui.composables.generic.DefaultTopBar
 import ru.vsu.task1.ui.navigation.AppBarViewModel
 
 @Composable
 fun CoinsScreen(
+    tradeSheetState: String?,
     navController: NavController,
     viewModel: CoinsViewModel = koinViewModel(),
     appBarViewModel: AppBarViewModel = koinInject(),
@@ -98,7 +99,9 @@ fun CoinsScreen(
                                 modifier = Modifier.weight(1f).height(150.dp),
                                 coinInfo = it.key,
                                 coinChart = it.value,
-                                navController = navController
+                                onClick = {
+                                    navController.navigate("trade/${it.key.id}?tradeSheetState=$tradeSheetState")
+                                }
                             )
                         }
                     }
@@ -113,7 +116,9 @@ fun CoinsScreen(
                 CoinListView(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     coins = coinsSubList,
-                    navController = navController
+                    onItemClick = { coinInfo ->
+                        navController.navigate("trade/${coinInfo.id}?tradeSheetState=$tradeSheetState")
+                    }
                 )
             }
         }

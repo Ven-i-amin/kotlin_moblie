@@ -34,7 +34,6 @@ import ru.vsu.task1.ui.composables.generic.Loading
 import ru.vsu.task1.ui.composables.generic.LoadingView
 import ru.vsu.task1.ui.composables.generic.DefaultTopBar
 import ru.vsu.task1.ui.navigation.AppBarViewModel
-import ru.vsu.task1.ui.theme.AppTypography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,6 +76,8 @@ fun ProfileScreen(
         onLoading = { Loading() },
         onError = { ErrorMessage { viewModel.fetchUserInfo() } }
     ) {
+        val typography = MaterialTheme.typography
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -119,7 +120,7 @@ fun ProfileScreen(
             ) {
                 Text(
                     text = "Sign out",
-                    style = AppTypography.bodyMedium
+                    style = typography.bodyMedium
                 )
             }
         }
@@ -147,6 +148,7 @@ private fun ProfileEditableRow(
     onEdit: () -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -155,20 +157,20 @@ private fun ProfileEditableRow(
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
                 text = label,
-                style = AppTypography.labelSmall,
+                style = typography.labelSmall,
                 color = colors.onBackground
             )
 
             Text(
                 text = value,
-                style = AppTypography.bodyMedium,
+                style = typography.bodyMedium,
                 color = colors.onBackground
             )
         }
         TextButton(onClick = onEdit) {
             Text(
                 text = "Edit",
-                style = AppTypography.bodySmall,
+                style = typography.bodySmall,
                 color = colors.primary
             )
         }
@@ -185,6 +187,8 @@ private fun ProfileEditSheet(
     onSave: () -> Unit
 ) {
     val colors = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val title = when (field) {
         ProfileField.Name -> "Edit name"
@@ -223,7 +227,7 @@ private fun ProfileEditSheet(
             ) {
                 Text(
                     text = "Save",
-                    style = AppTypography.bodyMedium
+                    style = typography.bodyMedium
                 )
             }
         }

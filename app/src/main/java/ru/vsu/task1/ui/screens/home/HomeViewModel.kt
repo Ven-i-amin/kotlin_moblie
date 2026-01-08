@@ -12,16 +12,17 @@ import ru.vsu.task1.data.models.home.Transaction
 import ru.vsu.task1.data.usecases.CoinUseCase
 import ru.vsu.task1.data.usecases.TransactionUseCase
 import ru.vsu.task1.data.usecases.AuthUseCase
+import ru.vsu.task1.data.usecases.UserUseCase
 
 class HomeViewModel(
     private val loginRepository: UserRepository,
     private val authUseCase: AuthUseCase,
+    private val userUseCase: UserUseCase,
     private val transactionUseCase: TransactionUseCase,
     private val coinUseCase: CoinUseCase,
 ) : ViewModel() {
     // loading
     private val _isLoadingBalance = MutableStateFlow(false)
-    val isLoadingBalance: StateFlow<Boolean> = _isLoadingBalance.asStateFlow()
 
     private val _isLoadingCoins = MutableStateFlow(false)
     val isLoadingCoins: StateFlow<Boolean> = _isLoadingCoins.asStateFlow()
@@ -103,6 +104,36 @@ class HomeViewModel(
                 _isLoadingBalance.value = false
             } catch (e: Exception) {
                 _error.value = "Failed to fetch balance"
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun topUpBalance(amount: Double) {
+        if (amount <= 0.0) {
+            return
+        }
+
+        _isLoadingBalance.value = true
+        _error.value = null
+
+        viewModelScope.launch {
+            try {
+                if (!authUseCase.checkUserToken()) {
+                    throw Exception()
+                }
+
+                val token = authUseCase.userToken.value!!
+                val currentBalance = _balance.value ?: loginRepository.getUserInfo(token).balance
+                val newBalance = currentBalance + amount
+
+                userUseCase.setUserBalance(newBalance)
+                _balance.value = newBalance
+
+                _isLoadingBalance.value = false
+            } catch (e: Exception) {
+                _error.value = "Failed to top up balance"
+                _isLoadingBalance.value = false
                 e.printStackTrace()
             }
         }

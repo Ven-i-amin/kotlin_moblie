@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import ru.vsu.task1.ui.theme.AppTypography
 import ru.vsu.task1.ui.theme.defaultScheme
 
 @Preview
@@ -26,6 +25,7 @@ fun ErrorMessage(
     onClick: () -> Unit = {}
 ) {
     val colors = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
 
     Column(
         modifier = modifier,
@@ -36,7 +36,7 @@ fun ErrorMessage(
                 .padding(bottom = 12.dp),
             color = defaultScheme.error,
             text = headerMessage,
-            style = AppTypography.titleLarge
+            style = typography.titleLarge
         )
 
         Text(

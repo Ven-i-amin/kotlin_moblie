@@ -19,7 +19,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.vsu.task1.ui.composables.generic.SmallImage
-import ru.vsu.task1.ui.theme.AppTypography
 import ru.vsu.task1.ui.theme.defaultScheme
 
 @Composable
@@ -31,6 +30,7 @@ fun CurrencyPanel(
     rightColumn: @Composable (() -> Unit)
 ) {
     val colors = MaterialTheme.colorScheme
+
     Row(
         modifier = modifier
             .wrapContentSize()
@@ -82,6 +82,7 @@ fun CurrencyPanel(
 private fun Preview() {
     MaterialTheme(colorScheme = defaultScheme) {
         val colors = MaterialTheme.colorScheme
+        val typography = MaterialTheme.typography
 
         CurrencyPanel(
             icon = null,
@@ -93,18 +94,18 @@ private fun Preview() {
                 ) {
                     Text(
                         text = "Bought ETH",
-                        style = AppTypography.bodyMedium
+                        style = typography.bodyMedium
                     )
 
                     Text(
                         text = "-100.00",
-                        style = AppTypography.bodySmall,
+                        style = typography.bodySmall,
                         color = colors.onSecondary
                     )
 
                     Text(
                         text = "data",
-                        style = AppTypography.bodySmall,
+                        style = typography.bodySmall,
                         color = colors.onSecondary
                     )
                 }
@@ -116,7 +117,7 @@ private fun Preview() {
                 ) {
                     Text(
                         text = "+0.65",
-                        style = AppTypography.bodyMedium,
+                        style = typography.bodyMedium,
                     )
                 }
             }

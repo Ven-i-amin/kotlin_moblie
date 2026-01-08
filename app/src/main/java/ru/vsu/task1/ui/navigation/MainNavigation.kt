@@ -16,8 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import org.koin.compose.koinInject
 import ru.vsu.task1.R
 import ru.vsu.task1.ui.screens.auth.AuthScreen
@@ -26,7 +28,6 @@ import ru.vsu.task1.ui.screens.home.HomeScreen
 import ru.vsu.task1.ui.screens.portfolio.PortfolioScreen
 import ru.vsu.task1.ui.screens.profile.ProfileScreen
 import ru.vsu.task1.ui.screens.trade.TradeScreen
-import ru.vsu.task1.ui.theme.defaultScheme
 
 @Composable
 fun MainNavigation(
@@ -50,7 +51,7 @@ fun MainNavigation(
             }
 
             NavigationBar(
-                containerColor = defaultScheme.background,
+                containerColor = colors.background,
 
                 ) {
                 val icons = listOf(
@@ -60,7 +61,7 @@ fun MainNavigation(
                     R.drawable.ic_account_24 to "profile"
                 )
 
-                icons.forEach{ iconAndEndPoint ->
+                icons.forEach { iconAndEndPoint ->
                     NavigationBarItem(
                         selected = pressedButton == iconAndEndPoint.second,
                         onClick = {
@@ -97,8 +98,22 @@ fun MainNavigation(
                     HomeScreen(navController)
                 }
 
-                composable("coins") {
-                    CoinsScreen(navController)
+                composable(
+                    route = "coins?tradeSheetState={tradeSheetState}",
+                    arguments = listOf(
+                        navArgument("tradeSheetState") {
+                            type = NavType.StringType
+                            nullable = true
+                            defaultValue = null
+                        }
+                    )
+                ) {
+                    val tradeSheetState = it.arguments?.getString("tradeSheetState")
+
+                    CoinsScreen(
+                        tradeSheetState = tradeSheetState,
+                        navController = navController
+                    )
                 }
 
                 composable("portfolio") {
@@ -109,9 +124,21 @@ fun MainNavigation(
                     ProfileScreen(navController = navController)
                 }
 
-                composable("trade/{coin}") { backStackEntry ->
+                composable(
+                    route = "trade/{coin}?tradeSheetState={tradeSheetState}",
+                    arguments = listOf(
+                        navArgument("coin") { type = NavType.StringType },
+                        navArgument("tradeSheetState") {
+                            type = NavType.StringType
+                            nullable = true
+                            defaultValue = null
+                        }
+                    )
+                ) { backStackEntry ->
                     val coin = backStackEntry.arguments?.getString("coin")!!
-                    TradeScreen(navController, coin)
+                    val tradeSheetState = backStackEntry.arguments?.getString("tradeSheetState")
+
+                    TradeScreen(navController, coin, tradeSheetState)
                 }
             }
         }

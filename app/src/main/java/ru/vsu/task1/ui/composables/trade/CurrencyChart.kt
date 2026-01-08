@@ -48,7 +48,6 @@ import com.patrykandpatrick.vico.core.common.shape.DashedShape
 import com.patrykandpatrick.vico.core.common.shape.Shape
 import ru.vsu.task1.ui.screens.trade.TradeViewModel
 import ru.vsu.task1.ui.composables.generic.Loading
-import ru.vsu.task1.ui.theme.defaultScheme
 import ru.vsu.task1.utils.formatDecimal
 import ru.vsu.task1.utils.formatSignificantDigit
 import java.text.DecimalFormat
@@ -58,6 +57,7 @@ import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
 import com.patrykandpatrick.vico.core.cartesian.layer.LineCartesianLayer as LineLayer
+
 const val STEPS = 50
 const val CIRCLE_ANGLE = 360f
 const val DELTA_STEP = CIRCLE_ANGLE / STEPS
@@ -86,11 +86,11 @@ private const val GRAPHIC_PADDING = 0f
 
 @Composable
 fun CurrencyChart(
+    modifier: Modifier = Modifier,
     prices: List<Float>,
     shadow: Boolean = true,
     marker: Boolean = true,
-    priceLine: Boolean = true,
-    modifier: Modifier = Modifier
+    priceLine: Boolean = true
 ) {
     val lastPrice = prices.last()
     val minPrice = prices.min() - GRAPHIC_PADDING
@@ -103,7 +103,7 @@ fun CurrencyChart(
         }
     }
 
-    Box(modifier  = modifier) {
+    Box(modifier = modifier) {
         ChartHost(
             modelProducer = modelProducer,
             priceLine = if (priceLine) priceLine(lastPrice) else null,
@@ -121,20 +121,22 @@ fun CurrencyChart(
 
 @Composable
 private fun priceLine(price: Float): HorizontalLine {
+    val colors = MaterialTheme.colorScheme
+
     val line = rememberLineComponent(
         fill = fill(
-            color = defaultScheme.onSecondary
+            color = colors.onSecondary
         ),
         shape = DashedShape()
     )
 
     val label = rememberTextComponent(
-        color = defaultScheme.onSecondary,
+        color = colors.onSecondary,
         textSize = TextUnit(12f, TextUnitType.Sp),
         padding = insets(4.dp),
         background = shapeComponent(
             fill = fill(
-                color = defaultScheme.secondary
+                color = colors.secondary
             ),
             CorneredShape.rounded(8.dp)
         )
@@ -174,11 +176,13 @@ private fun ChartHost(
     shadow: Boolean,
     marker: Boolean,
 ) {
+    val colors = MaterialTheme.colorScheme
+
     val areaFill = if (shadow) {
         fill(
             shaderProvider = verticalGradient(
                 colors = intArrayOf(
-                    defaultScheme.primary.toArgb(),
+                    colors.primary.toArgb(),
                     Color.Transparent.toArgb()
                 )
             )
@@ -193,7 +197,7 @@ private fun ChartHost(
                 LineLayer.Line(
                     fill = LineLayer.LineFill.single(
                         fill(
-                            color = defaultScheme.primary
+                            color = colors.primary
                         )
                     ),
                     stroke = LineLayer.LineStroke.Continuous(),
@@ -214,7 +218,7 @@ private fun ChartHost(
             ShapeComponent(
                 fill = fill(color),
                 shape = circle,
-                strokeFill = fill(defaultScheme.onPrimary),
+                strokeFill = fill(colors.onPrimary),
                 strokeThicknessDp = 3f
             )
         }

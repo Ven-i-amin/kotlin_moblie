@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import ru.vsu.task1.data.models.coin.CoinInfo
 import ru.vsu.task1.ui.composables.trade.CurrencyChart
 import ru.vsu.task1.ui.theme.defaultScheme
@@ -24,10 +23,10 @@ fun TopCurrencyPanel(
     coinInfo: CoinInfo?,
     coinChart: List<Float>,
     modifier: Modifier = Modifier,
-    navController: NavController? = null
+    onClick: () -> Unit = {  }
 ) {
     val colors = MaterialTheme.colorScheme
-    
+
     Column(
         modifier = modifier
             .background(colors.secondary)
@@ -35,7 +34,7 @@ fun TopCurrencyPanel(
             .padding(start = 12.dp)
             .padding(end = 6.dp)
             .clip(RoundedCornerShape(12.dp))
-            .clickable { navController?.navigate("trade/${coinInfo?.id}") }
+            .clickable(onClick = onClick)
     ) {
         Column(
             modifier = Modifier

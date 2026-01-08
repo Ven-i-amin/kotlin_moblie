@@ -1,8 +1,6 @@
 package ru.vsu.task1.data.repositories.transaction
 
 import android.util.Log
-import ru.vsu.task1.data.models.home.Order
-import ru.vsu.task1.data.models.home.UserCoin
 import ru.vsu.task1.data.models.home.Transaction
 
 class TransactionRepositoryImpl() : TransactionRepository {

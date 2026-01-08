@@ -25,7 +25,6 @@ class CoinsViewModel(
     val coinsSubList = _coinsSubList.asStateFlow()
 
     private val _subListLen = MutableStateFlow(0)
-    val subListLen = _subListLen.asStateFlow()
 
     private val _topPercentageChange24h = MutableStateFlow<Map<CoinInfo, List<Float>>>(emptyMap())
     val topPercentageChange24h = _topPercentageChange24h.asStateFlow()

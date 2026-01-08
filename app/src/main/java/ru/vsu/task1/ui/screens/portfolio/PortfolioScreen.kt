@@ -43,7 +43,6 @@ fun PortfolioScreen(
     viewModel: PortfolioViewModel = koinViewModel(),
     appBarViewModel: AppBarViewModel = koinInject()
 ) {
-    val colors = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
 
     val loading by viewModel.loading.collectAsState()
@@ -138,7 +137,9 @@ fun PortfolioScreen(
             CoinListView(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 coins = userCoinsAndInfo.mapNotNull { it.second },
-                navController = navController
+                onItemClick = { coinInfo ->
+                    navController.navigate("trade/${coinInfo.id}")
+                }
             )
         }
     }

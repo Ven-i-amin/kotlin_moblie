@@ -49,7 +49,6 @@ import org.koin.compose.koinInject
 import ru.vsu.task1.ui.composables.generic.Loading
 import ru.vsu.task1.ui.navigation.AppBarViewModel
 import ru.vsu.task1.ui.theme.AppTypography
-import ru.vsu.task1.ui.theme.defaultScheme
 
 @Composable
 fun AuthScreen(
@@ -57,6 +56,8 @@ fun AuthScreen(
     viewModel: AuthViewModel = koinViewModel(),
     appBarViewModel: AppBarViewModel = koinInject()
 ) {
+    val colors = MaterialTheme.colorScheme
+
     LaunchedEffect(Unit) {
         appBarViewModel.setTopBar {  }
         appBarViewModel.hideBottomBar()
@@ -68,7 +69,6 @@ fun AuthScreen(
 
     val route by appBarViewModel.pressedButton.collectAsState()
 
-    val colors = MaterialTheme.colorScheme
 
     var isLogin by remember { mutableStateOf(true) }
 
@@ -179,7 +179,6 @@ fun AuthScreen(
                             onEmailChange = { signupEmail = it },
                             onPasswordChange = { signupPassword = it },
                             onConfirmPasswordChange = { signupConfirmPassword = it },
-                            onNameChange = { signupName = it }
                         )
                     }
                 }
@@ -256,7 +255,6 @@ private fun SignupForm(
     onEmailChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
     onConfirmPasswordChange: (String) -> Unit,
-    onNameChange: (String) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         OutlinedTextField(
@@ -305,13 +303,15 @@ private fun AuthButton(
     text: String,
     onClick: () -> Unit
 ) {
+    val colors = MaterialTheme.colorScheme
+
     Button(
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .height(52.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(defaultScheme.primary),
+            .background(colors.primary),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Transparent,
             contentColor = Color.White
@@ -331,8 +331,10 @@ private fun AuthButton(
 )
 @Composable
 private fun AuthScreenPreview() {
+    val colors = MaterialTheme.colorScheme
+
     MaterialTheme(
-        colorScheme = defaultScheme,
+        colorScheme = colors,
         typography = AppTypography
     ) {
         AuthScreen(navController = rememberNavController())
