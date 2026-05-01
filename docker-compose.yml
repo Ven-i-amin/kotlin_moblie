@@ -1,0 +1,24 @@
+services:
+  services-back-db:
+    image: postgres:17
+    container_name: services_back_db
+    restart: no
+    env_file:
+      - ./env/services-back.env
+    volumes:
+      - services_back_pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  services-back:
+    build: ./services-back
+    container_name: services_back
+    depends_on:
+      - services-back-db
+    env_file:
+      - ./env/services-back.env
+    ports:
+      - "8000:8000"
+
+volumes:
+  services_back_pg_data:

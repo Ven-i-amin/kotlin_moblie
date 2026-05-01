@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: services-back
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:services_back}
+    username: ${DB_USERNAME:${DB_USER:services_back}}
+    password: ${DB_PASSWORD:1234}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  port: ${PORT:8000}
+
+security:
+  jwt:
+    secret: ${JWT_SECRET:change-me-change-me-change-me-change-me-change-me-change-me}
+    expiration-hours: ${JWT_EXPIRATION_HOURS:24}
