@@ -42,6 +42,16 @@ CLI (Windows):
 .\gradlew assembleDebug
 ```
 
+Release APK (Windows):
+```bash
+.\gradlew assembleRelease
+```
+
+- Версия релиза задается в `gradle.properties`: `appVersionCode` и `appVersionName`.
+- Debug и release используют URL из `gradle.properties`.
+- Текущий release URL: `gatewayReleaseBaseUrl=http://10.0.2.2:8000/`.
+- Этот адрес подходит для Android Emulator, не для физического устройства.
+
 ## Конфигурация
 - API ключ CoinGecko хранится в `app/src/main/java/ru/vsu/task1/Constant.kt`.
 
@@ -63,4 +73,3 @@ _Рисунок 5 — Диаграмма последовательности: �
 
 ![Sequence diagram: balance](docs/diagrams/sequence-balance.png)<br>
 _Рисунок 6 — Диаграмма последовательности: баланс._
-
