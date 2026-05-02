@@ -1,6 +1,6 @@
 ﻿# Файлы
-- [Видео работы приложения](docs/media/app-demo.mp4)
-- [Презентация](docs/media/presentation.pptx)
+- [Видео работы приложения](android-app/docs/media/app-demo.mp4)
+- [Презентация](android-app/docs/media/presentation.pptx)
 
 # Task1
 
@@ -56,20 +56,20 @@ Release APK (Windows):
 - API ключ CoinGecko хранится в `app/src/main/java/ru/vsu/task1/Constant.kt`.
 
 ## Диаграммы
-![Use case diagram](docs/diagrams/use-case-diagram.png)<br>
+![Use case diagram](android-app/docs/diagrams/use-case-diagram.png)<br>
 _Рисунок 1 — Use case диаграмма приложения._
 
-![Sequence diagram: login](docs/diagrams/sequence-login.png)<br>
+![Sequence diagram: login](android-app/docs/diagrams/sequence-login.png)<br>
 _Рисунок 2 — Диаграмма последовательности: вход._
 
-![Sequence diagram: watchlist](docs/diagrams/sequence-watchlist.png)<br>
+![Sequence diagram: watchlist](android-app/docs/diagrams/sequence-watchlist.png)<br>
 _Рисунок 3 — Диаграмма последовательности: добавление/удаление в watchlist._
 
-![Sequence diagram: buy](docs/diagrams/sequence-buy.png)<br>
+![Sequence diagram: buy](android-app/docs/diagrams/sequence-buy.png)<br>
 _Рисунок 4 — Диаграмма последовательности: покупка валюты._
 
-![Sequence diagram: coins list](docs/diagrams/sequence-coins-list.png)<br>
+![Sequence diagram: coins list](android-app/docs/diagrams/sequence-coins-list.png)<br>
 _Рисунок 5 — Диаграмма последовательности: список криптовалют._
 
-![Sequence diagram: balance](docs/diagrams/sequence-balance.png)<br>
+![Sequence diagram: balance](android-app/docs/diagrams/sequence-balance.png)<br>
 _Рисунок 6 — Диаграмма последовательности: баланс._
